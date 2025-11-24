@@ -2,17 +2,18 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import admin from 'firebase-admin';
+import userRouter from "./routes/userRouter";
 
 dotenv.config();
 
 // Initialize Firebase Admin
-admin.initializeApp({
-  credential: admin.credential.cert({
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  }),
-});
+// admin.initializeApp({
+//   credential: admin.credential.cert({
+//     projectId: process.env.FIREBASE_PROJECT_ID,
+//     privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+//     clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+//   }),
+// });
 
 const app = express();
 const PORT = process.env.PORT;
@@ -23,6 +24,9 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.json({ message: 'Backend is running with Firebase!' });
 });
+
+// Example Router Connection
+app.use("/users", userRouter);
 
 // Test Firebase connection
 app.get('/test-firebase', async (req, res) => {
