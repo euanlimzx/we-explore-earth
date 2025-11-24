@@ -15,7 +15,10 @@ const firebaseConfig = {
 // Initialize Firebase
 const app: FirebaseApp = initializeApp(firebaseConfig);
 
-// Initialize Firebase servicesS
+// Initialize Firebase Auth with AsyncStorage persistence
+// Note: getReactNativePersistence may not be available in all Firebase versions
+// Using getAuth for now - AsyncStorage warning will appear but auth will still work
+// TODO: Update to use initializeAuth with persistence once Firebase types are updated
 export const auth: Auth = getAuth(app);
 export const firestore: Firestore = getFirestore(app);
 export const googleProvider: GoogleAuthProvider = new GoogleAuthProvider();

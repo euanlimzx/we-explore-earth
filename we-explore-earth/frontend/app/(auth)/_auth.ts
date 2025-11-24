@@ -1,17 +1,6 @@
 import { signInWithCredential, signOut as firebaseSignOut, User, GoogleAuthProvider } from 'firebase/auth';
-import * as Google from 'expo-auth-session/providers/google';
 import * as AuthSession from 'expo-auth-session';
-import { auth } from '../../../firebase.config';
-
-// Configure Google Auth with Expo
-const useGoogleAuth = () => {
-  return Google.useAuthRequest({
-    clientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
-    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
-    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-  });
-};
+import { auth } from '../../firebase.config';
 
 // Sign in with Google using Expo Auth Session
 export async function signInWithGoogle(): Promise<User> {
@@ -83,3 +72,4 @@ export async function getIdToken(): Promise<string | null> {
   }
   return null;
 }
+

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
-import { getCurrentUser, getIdToken } from '../auth';
+import { getCurrentUser, getIdToken } from '../_auth';
 import { styles } from './styles';
 
 export default function OnboardingScreen() {

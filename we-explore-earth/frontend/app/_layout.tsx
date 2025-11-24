@@ -6,7 +6,7 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { onAuthStateChanged } from './(auth)/auth';
+import { onAuthStateChanged } from './(auth)/_auth';
 import { User } from 'firebase/auth';
 
 export const unstable_settings = {
