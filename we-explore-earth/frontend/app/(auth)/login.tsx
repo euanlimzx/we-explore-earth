@@ -5,8 +5,7 @@ import { View, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 //LOCAL FILES
-import { styles } from './styles';
-import { auth } from '@/firebase.config';
+import { styles } from './styles/login';
 
 export default function LoginPage() {
     //REACT HOOKS
@@ -23,7 +22,6 @@ export default function LoginPage() {
       }
 
       try {
-        await signInWithEmailAndPassword(auth, email, password);
         console.log('Login successful');
         router.replace('/(tabs)');
       } catch (error) {
