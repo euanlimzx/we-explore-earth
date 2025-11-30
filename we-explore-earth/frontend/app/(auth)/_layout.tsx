@@ -1,25 +1,23 @@
+//STANDARD LIBRARY
+//THIRD-PARTY LIBRARIES
 import { Stack } from 'expo-router';
+//LOCAL FILES
 
 export default function AuthLayout() {
+  //REACT HOOKS
+    
+  //STATE VARIABLES
+    
+  //HANDLERS
+    
+  //EFFECTS
+    
+  //RENDER
   return (
     <Stack
-      screenOptions={{
-        headerShown: false,
-        gestureEnabled: false, // Prevents swiping back
-      }}
+      screenOptions={{ headerShown: false }}
     >
-      <Stack.Screen 
-        name="login" 
-        options={{
-          title: 'Sign In'
-        }}
-      />
-      <Stack.Screen 
-        name="onboarding" 
-        options={{
-          title: 'Complete Profile'
-        }}
-      />
+      <Stack.Screen name="login" />
     </Stack>
   );
 }
