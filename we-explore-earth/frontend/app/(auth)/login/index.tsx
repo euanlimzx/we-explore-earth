@@ -1,20 +1,36 @@
 //STANDARD LIBRARY
+import { useState } from 'react';
 //THIRD-PARTY LIBRARIES
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { router } from 'expo-router';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 //LOCAL FILES
 import { styles } from './styles';
+import { auth } from '@/firebase.config';
 
 export default function LoginPage() {
     //REACT HOOKS
     
     //STATE VARIABLES
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     
     //HANDLERS
-    const handleLogin = () => {
-        console.log('Login pressed');
+    async function handleLogin() {
+      if (!email || !password) {
+        Alert.alert("Please fill in all the fields");
+        return;
+      }
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        console.log('Login successful');
         router.replace('/(tabs)');
-    };
+      } catch (error) {
+        console.error('Login error:', error);
+        Alert.alert('Login Failed', error.message);
+      }
+    }
     
     //EFFECTS
     
@@ -22,6 +38,24 @@ export default function LoginPage() {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Welcome to We Explore Earth</Text>
+
+            <TextInput
+                style={styles.input}
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+            />
+            
+            <TextInput
+                style={styles.input}
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+            />
+
             <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
                 <Text style={styles.buttonText}>LOGIN</Text>
             </TouchableOpacity>
