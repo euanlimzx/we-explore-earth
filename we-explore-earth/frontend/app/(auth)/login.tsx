@@ -3,7 +3,6 @@ import { useState } from 'react';
 //THIRD-PARTY LIBRARIES
 import { View, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { router } from 'expo-router';
-import { signInWithEmailAndPassword } from 'firebase/auth';
 //LOCAL FILES
 import { styles } from './styles/login';
 
@@ -23,7 +22,7 @@ export default function LoginPage() {
 
       try {
         console.log('Login successful');
-        router.replace('/(tabs)');
+        router.replace('/(users)');
       } catch (error) {
         console.error('Login error:', error);
         Alert.alert('Login Failed', error.message);
