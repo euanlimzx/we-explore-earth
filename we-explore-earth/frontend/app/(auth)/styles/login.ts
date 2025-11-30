@@ -1,13 +1,9 @@
-//STANDARD LIBRARY
-//THIRD-PARTY LIBRARIES
 import { StyleSheet } from 'react-native';
-//LOCAL FILES
 
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center',
         backgroundColor: '#f5f5f5',
         padding: 20,
     },
@@ -16,6 +12,15 @@ export const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 40,
         textAlign: 'center',
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 8,
+        padding: 15,
+        marginBottom: 15,
+        fontSize: 16,
+        backgroundColor: '#fff',
     },
     loginButton: {
         backgroundColor: '#007AFF',
