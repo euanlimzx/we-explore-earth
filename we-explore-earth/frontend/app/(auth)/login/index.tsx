@@ -5,6 +5,7 @@ import { View, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { router } from 'expo-router';
 //LOCAL FILES
 import { styles } from './styles';
+import BackButton from '@/app/components/BackButton'
 
 export default function LoginPage() {
     //REACT HOOKS
@@ -34,6 +35,8 @@ export default function LoginPage() {
     
     //RENDER
     return (
+      <>
+        <BackButton route="/launch" />
         <View style={styles.container}>
             <Text style={styles.title}>Welcome to We Explore Earth</Text>
 
@@ -58,5 +61,6 @@ export default function LoginPage() {
                 <Text style={styles.buttonText}>LOGIN</Text>
             </TouchableOpacity>
         </View>
+      </>
     );
 }
