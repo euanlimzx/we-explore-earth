@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { router } from 'expo-router';
 //LOCAL FILES
-import { styles } from './styles/login';
+import { styles } from './styles';
 
 export default function LoginPage() {
     //REACT HOOKS
@@ -21,6 +21,7 @@ export default function LoginPage() {
       }
 
       try {
+        //Need to call API to validate if user is in the database first 
         console.log('Login successful');
         router.replace('/(users)');
       } catch (error) {

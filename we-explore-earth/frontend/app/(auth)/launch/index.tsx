@@ -3,7 +3,7 @@
 import { View, Text, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 //LOCAL FILES
-import { styles } from './styles/launch';
+import { styles } from './styles';
 
 export default function LaunchPage() {
     //REACT HOOKS

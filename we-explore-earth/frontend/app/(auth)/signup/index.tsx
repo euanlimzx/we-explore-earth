@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert } from 'react-native';
 import { router } from 'expo-router';
 //LOCAL FILES
-import { styles } from './styles/signup';
+import { styles } from './styles';
 
 export default function SignupPage() {
     //REACT HOOKS
