@@ -12,7 +12,7 @@ export default function BackButton({ route }: { route: string }) {
 
     //HANDLERS
     function handlePress() {
-        router.push(route);
+        router.push(route as any);
     }
     
     //EFFECTS
