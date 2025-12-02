@@ -1,5 +1,4 @@
 import { View, Text } from 'react-native';
-import ExampleComponent from '../../components/ExampleComponent';
 
 export default function HomeScreen() {
   return (
@@ -8,8 +7,7 @@ export default function HomeScreen() {
       justifyContent: "center", 
       alignItems: "center" 
     }}>
-      <Text>Home Page</Text>
-      <ExampleComponent/>
+      <Text>Home Page HERE</Text>
     </View>
   );
 }

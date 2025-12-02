@@ -1,24 +1,51 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+// //STANDARD LIBRARY
+// import { useEffect, useState } from 'react';
+// //THIRD-PARTY LIBRARIES
+// import { Stack } from 'expo-router';
+// //LOCAL FILES
+
+// export default function RootLayout() {
+//     //REACT HOOKS
+    
+//     //STATE VARIABLES
+    
+//     //HANDLERS
+    
+//     //EFFECTS
+    
+//     //RENDER
+//     return (
+//         <Stack 
+//             screenOptions={{ headerShown: false }}
+//             initialRouteName="(users)"
+//         >
+//             <Stack.Screen name="(auth)" />
+//             <Stack.Screen name="(users)" />
+//             <Stack.Screen name="(admin)" />
+//             <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+//         </Stack>
+//     );
+// }
+
+//STANDARD LIBRARY
+import { useEffect, useState } from 'react';
+//THIRD-PARTY LIBRARIES
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+//LOCAL FILES
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+// export const unstable_settings = {
+//   initialRouteName: '(auth)',  // This sets the initial route
+// };
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+ return (
+    <>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(users)" />
+        <Stack.Screen name="(admin)" />
+        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    </>
   );
 }

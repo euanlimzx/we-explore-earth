@@ -1,0 +1,66 @@
+//STANDARD LIBRARY
+import { useState } from 'react';
+//THIRD-PARTY LIBRARIES
+import { View, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { router } from 'expo-router';
+//LOCAL FILES
+import { styles } from './styles';
+import BackButton from '@/app/components/BackButton'
+
+export default function LoginPage() {
+    //REACT HOOKS
+    
+    //STATE VARIABLES
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    
+    //HANDLERS
+    async function handleLogin() {
+      if (!email || !password) {
+        Alert.alert("Please fill in all the fields");
+        return;
+      }
+
+      try {
+        //Need to call API to validate if user is in the database first 
+        console.log('Login successful');
+        router.replace('/(users)/home');
+      } catch (error) {
+        console.error('Login error:', error);
+        Alert.alert('Login Failed', error instanceof Error ? error.message : 'An unknown error occurred');
+      }
+    }
+    
+    //EFFECTS
+    
+    //RENDER
+    return (
+      <>
+        <BackButton route="/launch" />
+        <View style={styles.container}>
+            <Text style={styles.title}>Welcome to We Explore Earth</Text>
+
+            <TextInput
+                style={styles.input}
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+            />
+            
+            <TextInput
+                style={styles.input}
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+            />
+
+            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+                <Text style={styles.buttonText}>LOGIN</Text>
+            </TouchableOpacity>
+        </View>
+      </>
+    );
+}
