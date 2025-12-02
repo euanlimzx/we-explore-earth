@@ -1,6 +1,7 @@
 import { db } from "../firestore";
 import { Request, Response } from "express";
 import admin from "firebase-admin";
+import { User } from "../types/user";
 
 // GET /users/:id
 export const getUser = async (req: Request, res: Response) => {
@@ -31,12 +32,12 @@ export const signupUser = async (req: Request, res: Response) => {
     });
 
     //Part 2: Create user document in Firestore
-    const userData = {
+    const userData: User = {
       username,
       email,
       firstName,
       lastName,
-      notificationToken: null, //TO DO: We need to get a nontification token for people who say yes to recieveing notifications
+      notificationToken: null,
       isAdmin: false,
     };
 
