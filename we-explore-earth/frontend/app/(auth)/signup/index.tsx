@@ -39,21 +39,25 @@ export default function SignupPage() {
         }
         
         try {
-            const formData = {
-                email,
-                password,
-                username,
-                firstName,
-                lastName,
-                age,
-                notifications,
-                privacy
-            };
+            const response = await fetch('${process.env.EXPO_PUBLIC_API_URL}/users/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', },
+                body: JSON.stringify({
+                    email,
+                    password,
+                    username,
+                    firstName,
+                    lastName,
+                    notifications
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Signup failed');
+            }
             
-            console.log('Form data:', formData);
-            // TODO: Call backend API
-            
-            // If successful, show success message and redirect to login
             Alert.alert(
                 'Success!', 
                 'Account created successfully. Please log in.',
@@ -65,7 +69,7 @@ export default function SignupPage() {
                 ]
             );
             
-        } catch (error) {
+        } catch (error : any) {
             Alert.alert(
                 'Signup Failed', 
                 error.message || 'Something went wrong. Please try again.'
