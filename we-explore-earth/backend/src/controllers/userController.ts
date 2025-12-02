@@ -4,7 +4,7 @@ import admin from "firebase-admin";
 import { User } from "../types/user";
 
 // GET /users/:id
-export const getUser = async (req: Request, res: Response) => {
+export async function getUser(req: Request, res: Response) {
   try {
     const doc = await db.collection("users").doc(req.params.id).get();
 
@@ -17,7 +17,7 @@ export const getUser = async (req: Request, res: Response) => {
 };
 
 // POST /users/signup
-export const signupUser = async (req: Request, res: Response) => {
+export async function signupUser(req: Request, res: Response) {
   try {
     const { email, password, username, firstName, lastName, age, notifications, privacy } = req.body;
 
@@ -31,7 +31,7 @@ export const signupUser = async (req: Request, res: Response) => {
       password,
     });
 
-    //Part 2: Create user document in Firestore
+    //Part 2: Create user document
     const userData: User = {
       username,
       email,
@@ -41,6 +41,7 @@ export const signupUser = async (req: Request, res: Response) => {
       isAdmin: false,
     };
 
+    //Part 3: POST user document to Firestore collection
     await db.collection("users").doc(userRecord.uid).set(userData);
 
     res.status(201).json({ 
