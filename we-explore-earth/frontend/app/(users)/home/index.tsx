@@ -7,7 +7,7 @@ export default function HomeScreen() {
       justifyContent: "center", 
       alignItems: "center" 
     }}>
-      <Text>Home Page</Text>
+      <Text>Home Page HERE</Text>
     </View>
   );
 }

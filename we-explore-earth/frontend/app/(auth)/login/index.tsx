@@ -24,10 +24,10 @@ export default function LoginPage() {
       try {
         //Need to call API to validate if user is in the database first 
         console.log('Login successful');
-        router.replace('/(users)');
+        router.replace('/(users)/home');
       } catch (error) {
         console.error('Login error:', error);
-        Alert.alert('Login Failed', error.message);
+        Alert.alert('Login Failed', error instanceof Error ? error.message : 'An unknown error occurred');
       }
     }
     
