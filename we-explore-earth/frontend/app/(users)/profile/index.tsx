@@ -10,19 +10,20 @@ import { User } from "../../../types/user";
 
 export default function ProfileScreen() {
   //REACT HOOKS
-  const { userId } = useUser();
+  // const { userId } = useUser();
   //STATE VARIABLES
   const [user, setUser] = useState<User | null>(null);
   //HANDLERS
   const fetchUser = async (userId: string) => {
     try {
+
       const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/users/${userId}`, {
         method: 'GET', 
         headers: {
           'Content-Type': 'application/json',
         },
       });
-
+      console.log(response);
       if (!response.ok) {
         throw new Error('Failed to fetch user');
       }
@@ -34,17 +35,24 @@ export default function ProfileScreen() {
     }
   }
   //EFFECTS
+  // useEffect(() => {
+  //   if (userId) {
+  //     fetchUser(userId);
+  //   }
+  // }, [userId]);
+  //temp fetch for testing
   useEffect(() => {
-    if (userId) {
-      fetchUser(userId);
-    }
-  }, [userId]);
+    fetchUser("2tl9WMoEwLR8utcWggyiKNnFM572");
+  }, []);
 
 
   //RENDER
   return (
     <View style = {styles.container}>
       <Text> Hi @{user?.username}!</Text>
+      <Text> Email: {user?.email}</Text>
+      <Text> First Name: {user?.firstName}</Text>
+      <Text> Last Name: {user?.lastName}</Text>
     </View>
   );
 }
