@@ -22,12 +22,33 @@ export default function LoginPage() {
       }
 
       try {
-        //Need to call API to validate if user is in the database first 
+        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/users/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', },
+          body: JSON.stringify({
+              email,
+              password
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          Alert.alert(
+            'Login Failed', 
+            data.error || 'An unknown error occurred'
+          );
+          throw new Error(data.error || 'Login failed');
+        }
+
         console.log('Login successful');
         router.replace('/(users)/home');
       } catch (error) {
         console.error('Login error:', error);
-        Alert.alert('Login Failed', error instanceof Error ? error.message : 'An unknown error occurred');
+        Alert.alert(
+          'Login Failed', 
+          error instanceof Error ? error.message : 'An unknown error occurred'
+        );
       }
     }
     

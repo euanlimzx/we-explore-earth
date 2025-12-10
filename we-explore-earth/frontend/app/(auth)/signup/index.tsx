@@ -60,7 +60,7 @@ export default function SignupPage() {
             
             Alert.alert(
                 'Success!', 
-                'Account created successfully. Please log in.',
+                'Please check your email for verification before logging in!',
                 [
                     {
                         text: 'OK',
