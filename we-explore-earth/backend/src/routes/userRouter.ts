@@ -1,7 +1,8 @@
 import express from "express";
 import {
   getUser,
-  signupUser
+  signupUser,
+  loginUser
 } from "../controllers/userController";
 
 const router = express.Router();
@@ -11,5 +12,8 @@ router.get("/:id", getUser);
 
 // POST /users/signup
 router.post("/signup", signupUser);
+
+// POST /users/login
+router.post("/login", loginUser);
 
 export default router;
