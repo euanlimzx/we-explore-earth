@@ -2,6 +2,7 @@ import { db } from "../firestore";
 import { Request, Response } from "express";
 import admin from "firebase-admin";
 import { User } from "../types/user";
+import nodemailer from 'nodemailer';
 
 // GET /users/:id
 export async function getUser(req: Request, res: Response) {
@@ -25,13 +26,36 @@ export async function signupUser(req: Request, res: Response) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    //Part 1: Validate the user using firebase Auth
+    //Part 1: Validate the user using firebase Auth + Send email verification link
     const userRecord = await admin.auth().createUser({
       email,
       password,
     });
 
-    await admin.auth().generateEmailVerificationLink(email); //email verification link
+    // Generate verification link
+    const verificationLink = await admin.auth().generateEmailVerificationLink(email);
+
+    // Send verification email
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Verify Your Email - We Explore Earth',
+      html: `
+        <h2>Welcome to We Explore Earth, ${firstName}!</h2>
+        <p>Please click the link below to verify your email address:</p>
+        <a href="${verificationLink}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Email</a>
+        <p>If the button doesn't work, copy and paste this link:</p>
+        <p>${verificationLink}</p>
+      `
+    });
       
     //Part 2: Create user document
     const userData: User = {
@@ -65,20 +89,34 @@ export async function loginUser(req: Request, res: Response) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Verify email/password combination using Firebase REST API
-    const authUrl = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`;
-    const authResponse = await fetch(authUrl, {
+    // Try to sign in using Firebase REST API with better error handling
+    const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
-        email,
-        password,
+        email: email,
+        password: password,
         returnSecureToken: true
       })
     });
 
-    if (!authResponse.ok) {
-      return res.status(401).json({ error: "Invalid email or password" });
+    const data = await response.json();
+    
+    if (!response.ok) {
+      // Log the specific error for debugging
+      console.log('Firebase Auth Error:', data);
+      
+      if (data.error?.message?.includes('EMAIL_NOT_FOUND')) {
+        return res.status(401).json({ error: "No account found with this email" });
+      } else if (data.error?.message?.includes('INVALID_PASSWORD')) {
+        return res.status(401).json({ error: "Incorrect password" });
+      } else if (data.error?.message?.includes('USER_DISABLED')) {
+        return res.status(401).json({ error: "Account has been disabled" });
+      } else {
+        return res.status(401).json({ error: "Invalid email or password" });
+      }
     }
 
     // Get user details from Firebase Auth
