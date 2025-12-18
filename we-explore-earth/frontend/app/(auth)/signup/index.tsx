@@ -13,6 +13,7 @@ export default function SignupPage() {
     //STATE VARIABLES
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [checkPassword, setCheckPassword] = useState('');
     const [username, setUsername] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -25,6 +26,11 @@ export default function SignupPage() {
         // Basic validation
         if (!email || !password || !username || !firstName || !lastName) {
             Alert.alert('Error', 'Please fill in all required fields');
+            return;
+        }
+        
+        if (password !== checkPassword) {
+            Alert.alert('Error', 'Passwords do not match');
             return;
         }
         
@@ -60,7 +66,7 @@ export default function SignupPage() {
             
             Alert.alert(
                 'Success!', 
-                'Account created successfully. Please log in.',
+                'Please check your email for verification before logging in!',
                 [
                     {
                         text: 'OK',
@@ -100,6 +106,14 @@ export default function SignupPage() {
                     placeholder="Password"
                     value={password}
                     onChangeText={setPassword}
+                    secureTextEntry
+                />
+
+                <TextInput
+                    style={styles.input}
+                    placeholder="Confirm Password"
+                    value={checkPassword}
+                    onChangeText={setCheckPassword}
                     secureTextEntry
                 />
                 
