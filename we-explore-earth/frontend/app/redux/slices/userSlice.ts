@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { PayloadAction } from '@reduxjs/toolkit';
 
 interface User {
+    id: string;
     username: string;
     email: string;
     firstName: string;
@@ -26,6 +27,6 @@ const userSlice = createSlice({
     },
 });
 
-export const { setUserState, clearUserState} = userSlice.actions;
+export const { setUserState, clearUserState } = userSlice.actions;
 export const userReducer = userSlice.reducer;
 

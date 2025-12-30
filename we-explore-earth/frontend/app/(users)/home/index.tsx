@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native';
-import { useAppSelector } from '../../redux/hooks';
+import { useAppSelector } from '@/app/redux/hooks';
 
 export default function HomeScreen() {
   const userData = useAppSelector((state) => state.user);
@@ -11,7 +11,13 @@ export default function HomeScreen() {
       alignItems: "center" 
     }}>
       <Text>Home Page HERE</Text>
-      <Text>{JSON.stringify(userData, null, 2)}</Text>
+      <Text>{userData?.id}</Text>
+      <Text>{userData?.username}</Text>
+      <Text>{userData?.email}</Text>
+      <Text>{userData?.firstName}</Text>
+      <Text>{userData?.lastName}</Text>
+      <Text>{userData?.notificationToken}</Text>
+      <Text>{userData?.isAdmin ? 'true' : 'false'}</Text>
     </View>
   );
 }
