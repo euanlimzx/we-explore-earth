@@ -57,6 +57,9 @@ export default function LoginPage() {
       }
     }
     
+    async function handleForgotPassword() {
+      router.push('/(auth)/reset');
+    }
     //EFFECTS
     
     //RENDER
@@ -85,6 +88,10 @@ export default function LoginPage() {
 
             <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
                 <Text style={styles.buttonText}>LOGIN</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.forgotPasswordButton} onPress={handleForgotPassword}>
+                <Text style={styles.buttonText}>Forgot you password?</Text>
             </TouchableOpacity>
         </View>
       </>

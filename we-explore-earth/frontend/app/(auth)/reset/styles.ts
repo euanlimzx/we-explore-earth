@@ -22,16 +22,10 @@ export const styles = StyleSheet.create({
         fontSize: 16,
         backgroundColor: '#fff',
     },
-    loginButton: {
+    resetPasswordButton: {
         backgroundColor: '#007AFF',
         paddingHorizontal: 40,
         paddingVertical: 15,
-        borderRadius: 8,
-    },
-    forgotPasswordButton: {
-        backgroundColor: '#007AFF',
-        paddingHorizontal: 30,
-        paddingVertical: 10,
         borderRadius: 8,
     },
     buttonText: {
