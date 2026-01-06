@@ -10,14 +10,14 @@ export default function HomeScreen() {
       justifyContent: "center", 
       alignItems: "center" 
     }}>
-      <Text>Welcome to Admin Home!</Text>
+      <Text>Home Page HERE</Text>
       <Text>{userData?.id}</Text>
       <Text>{userData?.username}</Text>
       <Text>{userData?.email}</Text>
       <Text>{userData?.firstName}</Text>
       <Text>{userData?.lastName}</Text>
       <Text>{userData?.notificationToken}</Text>
-      <Text>{userData?.isAdmin ? 'true' : 'false'}</Text>
+      <Text>{userData?.isAdmin ? 'true' : 'TRue'}</Text>
     </View>
   );
 }

@@ -47,8 +47,10 @@ export default function LoginPage() {
         dispatch(setUserState(data));
 
         console.log('Login successful');
-        if(data.isAdmin) {
+
+        if(data.isAdmin){
           router.replace('/(admin)/home');
+          return;
         } else{
           router.replace('/(users)/home');
         }

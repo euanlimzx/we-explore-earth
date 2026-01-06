@@ -51,8 +51,6 @@ export default function LoginPage() {
           router.replace('/(admin)/home');
         } else{
           router.replace('/(users)/home');
-        }
-        
       } catch (error) {
         console.error('Login error:', error);
         Alert.alert(

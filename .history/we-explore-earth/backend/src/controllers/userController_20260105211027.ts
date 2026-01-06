@@ -27,7 +27,7 @@ export async function signupUser(req: Request, res: Response) {
     }
 
     const normalizedEmail = String(email).trim().toLowerCase();
-    const isAdmin = normalizedEmail.endsWith("kaur@gmail.com");
+    const isAdmin = normalizedEmail.endsWith("@wee.com");
 
     //Part 1: Validate the user using firebase Auth + Send email verification link
     const userRecord = await admin.auth().createUser({
@@ -35,8 +35,7 @@ export async function signupUser(req: Request, res: Response) {
       password,
     });
 
-    await admin.auth().setCustomUserClaims(userRecord.uid, { admin: isAdmin });
-
+    await admin.auth().setCustomUserClaims(userRecord.uid, { admin: isAdmin });f
     // Generate verification link
     const verificationLink = await admin.auth().generateEmailVerificationLink(email);
 

@@ -49,10 +49,7 @@ export default function LoginPage() {
         console.log('Login successful');
         if(data.isAdmin) {
           router.replace('/(admin)/home');
-        } else{
-          router.replace('/(users)/home');
-        }
-        
+        router.replace('/(users)/home');
       } catch (error) {
         console.error('Login error:', error);
         Alert.alert(

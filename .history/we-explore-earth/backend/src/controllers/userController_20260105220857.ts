@@ -39,7 +39,6 @@ export async function signupUser(req: Request, res: Response) {
 
     // Generate verification link
     const verificationLink = await admin.auth().generateEmailVerificationLink(email);
-
     // Send verification email
     const transporter = nodemailer.createTransport({
       service: 'gmail',

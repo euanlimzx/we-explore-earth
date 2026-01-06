@@ -47,12 +47,11 @@ export default function LoginPage() {
         dispatch(setUserState(data));
 
         console.log('Login successful');
-        if(data.isAdmin) {
+        if(data.isAdmin){
           router.replace('/(admin)/home');
-        } else{
-          router.replace('/(users)/home');
+          return;
         }
-        
+        router.replace('/(users)/home');
       } catch (error) {
         console.error('Login error:', error);
         Alert.alert(

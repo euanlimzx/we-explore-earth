@@ -10,7 +10,7 @@ export default function HomeScreen() {
       justifyContent: "center", 
       alignItems: "center" 
     }}>
-      <Text>Welcome to Admin Home!</Text>
+      <Text>Home Page HERE</Text>
       <Text>{userData?.id}</Text>
       <Text>{userData?.username}</Text>
       <Text>{userData?.email}</Text>
