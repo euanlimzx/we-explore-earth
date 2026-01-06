@@ -58,7 +58,7 @@ export default function LoginPage() {
     }
     
     async function handleForgotPassword() {
-      router.push('/(auth)/reset');
+      router.push('/reset' as any);
     }
     //EFFECTS
     
