@@ -152,7 +152,7 @@ export async function resetPassword(req: Request, res: Response) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const verificationLink = await admin.auth().generateEmailVerificationLink(email);
+    const verificationLink = await admin.auth().generatePasswordResetLink(email);
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
