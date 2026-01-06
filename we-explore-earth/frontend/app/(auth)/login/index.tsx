@@ -47,7 +47,7 @@ export default function LoginPage() {
         dispatch(setUserState(data));
 
         console.log('Login successful');
-        router.replace('/(users)/home');
+      router.replace("/(admin)/events");
       } catch (error) {
         console.error('Login error:', error);
         Alert.alert(
