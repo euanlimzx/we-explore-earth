@@ -3,7 +3,28 @@ import { Request, Response } from "express";
 import admin from "firebase-admin";
 import { Event } from "../types/event";
 
-// GET /users/:id
+// create event
 export async function createEvent(req: Request, res: Response) {
-  console.log("Creating event...");
-};
+  try {
+    const { title, description, location, timeStart, timeEnd } = req.body;
+
+    if (!title || !description || !location || !timeStart || !timeEnd) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const eventData: Event = {
+      title,
+      description,
+      location,
+      timeStart: new Date(timeStart),
+      timeEnd: new Date(timeEnd),
+    };
+
+    const docRef = await db.collection("events").add(eventData);
+
+    return res.status(201).json({ id: docRef.id, ...eventData });
+  } catch (error) {
+    console.error("Error creating event:", error);
+    return res.status(500).json({ error: "Failed to create event" });
+  }
+}
