@@ -6,6 +6,8 @@ import { router } from 'expo-router';
 //LOCAL FILES
 import { styles } from './styles';
 import BackButton from '@/app/components/BackButton'
+import { useAppDispatch } from '@/app/redux/hooks';
+import { setUserState } from '@/app/redux/slices/userSlice';
 
 export default function LoginPage() {
     //REACT HOOKS
@@ -13,6 +15,7 @@ export default function LoginPage() {
     //STATE VARIABLES
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const dispatch = useAppDispatch();
     
     //HANDLERS
     async function handleLogin() {
@@ -40,6 +43,8 @@ export default function LoginPage() {
           );
           throw new Error(data.error || 'Login failed');
         }
+        
+        dispatch(setUserState(data));
 
         console.log('Login successful');
         router.replace('/(users)/home');
@@ -52,6 +57,9 @@ export default function LoginPage() {
       }
     }
     
+    async function handleForgotPassword() {
+      router.push('/reset' as any);
+    }
     //EFFECTS
     
     //RENDER
@@ -80,6 +88,10 @@ export default function LoginPage() {
 
             <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
                 <Text style={styles.buttonText}>LOGIN</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.forgotPasswordButton} onPress={handleForgotPassword}>
+                <Text style={styles.buttonText}>Forgot you password?</Text>
             </TouchableOpacity>
         </View>
       </>

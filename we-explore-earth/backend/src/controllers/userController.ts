@@ -80,7 +80,7 @@ export async function signupUser(req: Request, res: Response) {
   }
 };
 
-// GET /users/login
+// POST /users/login
 export async function loginUser(req: Request, res: Response) {
   try {
     const { email, password } = req.body;
@@ -142,3 +142,41 @@ export async function loginUser(req: Request, res: Response) {
     res.status(500).json({ error: e.message });
   }
 };
+
+// POST /users/reset for resetting the user password by email
+export async function resetPassword(req: Request, res: Response) {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const verificationLink = await admin.auth().generatePasswordResetLink(email);
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Reset Your Password - We Explore Earth',
+      html: `
+        <h2>Reset Your Password - We Explore Earth</h2>
+        <p>Please click the link below to reset your password:</p>
+        <a href="${verificationLink}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reset Password</a>
+        <p>If the button doesn't work, copy and paste this link:</p>
+        <p>${verificationLink}</p>
+      `
+    });
+
+    res.json({ message: "Password reset email sent" });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+}

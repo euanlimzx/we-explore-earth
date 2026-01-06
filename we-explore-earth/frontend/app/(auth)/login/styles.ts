@@ -28,6 +28,12 @@ export const styles = StyleSheet.create({
         paddingVertical: 15,
         borderRadius: 8,
     },
+    forgotPasswordButton: {
+        backgroundColor: '#007AFF',
+        paddingHorizontal: 30,
+        paddingVertical: 10,
+        borderRadius: 8,
+    },
     buttonText: {
         color: 'white',
         fontSize: 18,
