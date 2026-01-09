@@ -23,10 +23,21 @@ const userSlice = createSlice({
       
         clearUserState: () => {
             return null;  
-        },
+        }, 
+
+        updateUserState: (state, action: PayloadAction<User>) => {
+            if (state) {
+                return {
+                    ...state,
+                    ...action.payload
+                };
+            }
+            return state;
+        }
     },
 });
 
-export const { setUserState, clearUserState } = userSlice.actions;
+export const { setUserState, clearUserState, updateUserState } = userSlice.actions;
 export const userReducer = userSlice.reducer;
+
 
