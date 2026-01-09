@@ -1,15 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { PayloadAction } from '@reduxjs/toolkit';
-
-interface User {
-    id: string;
-    username: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    notificationToken: string | null;
-    isAdmin: boolean;
-}
+import { User } from '../../types/user';
 
 type UserState = User | null;
 
