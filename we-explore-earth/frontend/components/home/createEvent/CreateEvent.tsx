@@ -2,10 +2,22 @@ import { useState } from "react";
 import { Alert } from "react-native";
 import EventForm from "./EventForm";
 
+// Helper function to combine date and time into a Date object
+const combineDateAndTime = (date: Date, time: Date): Date => {
+  const combined = new Date(date);
+  combined.setHours(time.getHours());
+  combined.setMinutes(time.getMinutes());
+  combined.setSeconds(time.getSeconds());
+  combined.setMilliseconds(time.getMilliseconds());
+  return combined;
+};
+
 export default function CreateEvent() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [dateStart, setDateStart] = useState(new Date());
   const [timeStart, setTimeStart] = useState(new Date());
+  const [dateEnd, setDateEnd] = useState(new Date());
   const [timeEnd, setTimeEnd] = useState(new Date());
   const [location, setLocation] = useState("");
 
@@ -16,6 +28,10 @@ export default function CreateEvent() {
     }
 
     try {
+      // Combine date and time for start and end
+      const combinedTimeStart = combineDateAndTime(dateStart, timeStart);
+      const combinedTimeEnd = combineDateAndTime(dateEnd, timeEnd);
+
       const response = await fetch(
         `${process.env.EXPO_PUBLIC_API_URL}/events/create`,
         {
@@ -25,8 +41,8 @@ export default function CreateEvent() {
             title,
             description,
             location,
-            timeStart: timeStart.toISOString(),
-            timeEnd: timeEnd.toISOString(),
+            timeStart: combinedTimeStart.toISOString(),
+            timeEnd: combinedTimeEnd.toISOString(),
           }),
         }
       );
@@ -44,8 +60,11 @@ export default function CreateEvent() {
       setTitle("");
       setDescription("");
       setLocation("");
-      setTimeStart(new Date());
-      setTimeEnd(new Date());
+      const now = new Date();
+      setDateStart(now);
+      setTimeStart(now);
+      setDateEnd(now);
+      setTimeEnd(now);
     } catch (error) {
       console.error("Error creating event:", error);
       Alert.alert(
@@ -63,8 +82,12 @@ export default function CreateEvent() {
       setDescription={setDescription}
       location={location}
       setLocation={setLocation}
+      dateStart={dateStart}
+      setDateStart={setDateStart}
       timeStart={timeStart}
       setTimeStart={setTimeStart}
+      dateEnd={dateEnd}
+      setDateEnd={setDateEnd}
       timeEnd={timeEnd}
       setTimeEnd={setTimeEnd}
       onSubmit={handleSubmit}

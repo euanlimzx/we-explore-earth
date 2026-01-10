@@ -1,4 +1,12 @@
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Platform,
+  ScrollView,
+} from "react-native";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
@@ -11,8 +19,12 @@ interface EventFormProps {
   setDescription: (text: string) => void;
   location: string;
   setLocation: (text: string) => void;
+  dateStart: Date;
+  setDateStart: (date: Date) => void;
   timeStart: Date;
   setTimeStart: (date: Date) => void;
+  dateEnd: Date;
+  setDateEnd: (date: Date) => void;
   timeEnd: Date;
   setTimeEnd: (date: Date) => void;
   onSubmit: () => void;
@@ -27,20 +39,75 @@ export default function EventForm({
   setDescription,
   location,
   setLocation,
+  dateStart,
+  setDateStart,
   timeStart,
   setTimeStart,
+  dateEnd,
+  setDateEnd,
   timeEnd,
   setTimeEnd,
   onSubmit,
   submitButtonText,
   formTitle,
 }: EventFormProps) {
+  const [showDateStartPicker, setShowDateStartPicker] = useState(false);
+  const [showTimeStartPicker, setShowTimeStartPicker] = useState(false);
+  const [showDateEndPicker, setShowDateEndPicker] = useState(false);
+  const [showTimeEndPicker, setShowTimeEndPicker] = useState(false);
+
+  const isAndroid = Platform.OS === "android";
+
+  const formatDate = (date: Date): string => {
+    return date.toLocaleDateString();
+  };
+
+  const formatTime = (date: Date): string => {
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
+
+  const handleDateStartChange = (
+    event: DateTimePickerEvent,
+    selectedDate?: Date
+  ) => {
+    if (isAndroid) {
+      setShowDateStartPicker(false);
+      if (event.type === "dismissed") {
+        return;
+      }
+    }
+    if (selectedDate) {
+      setDateStart(selectedDate);
+    }
+  };
+
   const handleTimeStartChange = (
     event: DateTimePickerEvent,
     selectedDate?: Date
   ) => {
+    if (isAndroid) {
+      setShowTimeStartPicker(false);
+      if (event.type === "dismissed") {
+        return;
+      }
+    }
     if (selectedDate) {
       setTimeStart(selectedDate);
+    }
+  };
+
+  const handleDateEndChange = (
+    event: DateTimePickerEvent,
+    selectedDate?: Date
+  ) => {
+    if (isAndroid) {
+      setShowDateEndPicker(false);
+      if (event.type === "dismissed") {
+        return;
+      }
+    }
+    if (selectedDate) {
+      setDateEnd(selectedDate);
     }
   };
 
@@ -48,6 +115,12 @@ export default function EventForm({
     event: DateTimePickerEvent,
     selectedDate?: Date
   ) => {
+    if (isAndroid) {
+      setShowTimeEndPicker(false);
+      if (event.type === "dismissed") {
+        return;
+      }
+    }
     if (selectedDate) {
       setTimeEnd(selectedDate);
     }
@@ -55,50 +128,112 @@ export default function EventForm({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{formTitle}</Text>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text style={styles.title}>{formTitle}</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Title"
-        value={title}
-        onChangeText={setTitle}
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Title"
+          value={title}
+          onChangeText={setTitle}
+        />
 
-      <TextInput
-        style={[styles.input, styles.textArea]}
-        placeholder="Description"
-        value={description}
-        onChangeText={setDescription}
-        multiline
-        numberOfLines={4}
-      />
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          placeholder="Description"
+          value={description}
+          onChangeText={setDescription}
+          multiline
+          numberOfLines={4}
+        />
 
-      <Text style={styles.label}>Start Time</Text>
-      <DateTimePicker
-        value={timeStart}
-        mode="datetime"
-        display="default"
-        onChange={handleTimeStartChange}
-      />
+        <Text style={styles.label}>Start Date</Text>
+        {isAndroid ? (
+          <TouchableOpacity
+            style={styles.input}
+            onPress={() => setShowDateStartPicker(true)}
+          >
+            <Text>{formatDate(dateStart)}</Text>
+          </TouchableOpacity>
+        ) : null}
+        {(isAndroid && showDateStartPicker) || !isAndroid ? (
+          <DateTimePicker
+            value={dateStart}
+            mode="date"
+            display="default"
+            onChange={handleDateStartChange}
+          />
+        ) : null}
 
-      <Text style={styles.label}>End Time</Text>
-      <DateTimePicker
-        value={timeEnd}
-        mode="datetime"
-        display="default"
-        onChange={handleTimeEndChange}
-      />
+        <Text style={styles.label}>Start Time</Text>
+        {isAndroid ? (
+          <TouchableOpacity
+            style={styles.input}
+            onPress={() => setShowTimeStartPicker(true)}
+          >
+            <Text>{formatTime(timeStart)}</Text>
+          </TouchableOpacity>
+        ) : null}
+        {(isAndroid && showTimeStartPicker) || !isAndroid ? (
+          <DateTimePicker
+            value={timeStart}
+            mode="time"
+            display="default"
+            onChange={handleTimeStartChange}
+          />
+        ) : null}
 
-      <TextInput
-        style={styles.input}
-        placeholder="Location"
-        value={location}
-        onChangeText={setLocation}
-      />
+        <Text style={styles.label}>End Date</Text>
+        {isAndroid ? (
+          <TouchableOpacity
+            style={styles.input}
+            onPress={() => setShowDateEndPicker(true)}
+          >
+            <Text>{formatDate(dateEnd)}</Text>
+          </TouchableOpacity>
+        ) : null}
+        {(isAndroid && showDateEndPicker) || !isAndroid ? (
+          <DateTimePicker
+            value={dateEnd}
+            mode="date"
+            display="default"
+            onChange={handleDateEndChange}
+          />
+        ) : null}
 
-      <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
-        <Text style={styles.buttonText}>{submitButtonText}</Text>
-      </TouchableOpacity>
+        <Text style={styles.label}>End Time</Text>
+        {isAndroid ? (
+          <TouchableOpacity
+            style={styles.input}
+            onPress={() => setShowTimeEndPicker(true)}
+          >
+            <Text>{formatTime(timeEnd)}</Text>
+          </TouchableOpacity>
+        ) : null}
+        {(isAndroid && showTimeEndPicker) || !isAndroid ? (
+          <DateTimePicker
+            value={timeEnd}
+            mode="time"
+            display="default"
+            onChange={handleTimeEndChange}
+          />
+        ) : null}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Location"
+          value={location}
+          onChangeText={setLocation}
+        />
+
+        <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
+          <Text style={styles.buttonText}>{submitButtonText}</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 }
