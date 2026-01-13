@@ -27,6 +27,8 @@ interface EventFormProps {
   setDateEnd: (date: Date) => void;
   timeEnd: Date;
   setTimeEnd: (date: Date) => void;
+  price: string;
+  setPrice: (text: string) => void;
   onSubmit: () => void;
   submitButtonText: string;
   formTitle: string;
@@ -47,6 +49,8 @@ export default function EventForm({
   setDateEnd,
   timeEnd,
   setTimeEnd,
+  price,
+  setPrice,
   onSubmit,
   submitButtonText,
   formTitle,
@@ -124,6 +128,11 @@ export default function EventForm({
     if (selectedDate) {
       setTimeEnd(selectedDate);
     }
+  };
+
+  const handlePriceChange = (text: string) => {
+    const numericValue = text.replace(/[^0-9]/g, '');
+    setPrice(numericValue);
   };
 
   return (
@@ -229,6 +238,14 @@ export default function EventForm({
           value={location}
           onChangeText={setLocation}
         />
+    
+        <TextInput
+          style={styles.input}
+          placeholder="Price"
+          value={price}
+          onChangeText={handlePriceChange}
+          keyboardType="number-pad" 
+        />        
 
         <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
           <Text style={styles.buttonText}>{submitButtonText}</Text>

@@ -20,6 +20,7 @@ export default function CreateEvent() {
   const [dateEnd, setDateEnd] = useState(new Date());
   const [timeEnd, setTimeEnd] = useState(new Date());
   const [location, setLocation] = useState("");
+  const [price, setPrice] = useState("");
 
   const handleSubmit = async () => {
     if (!title || !description || !location) {
@@ -43,6 +44,7 @@ export default function CreateEvent() {
             location,
             timeStart: combinedTimeStart.toISOString(),
             timeEnd: combinedTimeEnd.toISOString(),
+            price
           }),
         }
       );
@@ -65,6 +67,7 @@ export default function CreateEvent() {
       setTimeStart(now);
       setDateEnd(now);
       setTimeEnd(now);
+      setPrice("")
     } catch (error) {
       console.error("Error creating event:", error);
       Alert.alert(
@@ -90,6 +93,8 @@ export default function CreateEvent() {
       setDateEnd={setDateEnd}
       timeEnd={timeEnd}
       setTimeEnd={setTimeEnd}
+      price = {price}
+      setPrice = {setPrice}
       onSubmit={handleSubmit}
       submitButtonText="Create Event"
       formTitle="Create New Event"
