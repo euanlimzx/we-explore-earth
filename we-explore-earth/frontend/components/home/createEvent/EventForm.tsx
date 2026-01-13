@@ -27,6 +27,8 @@ interface EventFormProps {
   setDateEnd: (date: Date) => void;
   timeEnd: Date;
   setTimeEnd: (date: Date) => void;
+  tags: any[];
+  setTags: (tags: any[]) => void;
   onSubmit: () => void;
   submitButtonText: string;
   formTitle: string;
@@ -48,6 +50,8 @@ export default function EventForm({
   timeEnd,
   setTimeEnd,
   onSubmit,
+  tags,
+  setTags,
   submitButtonText,
   formTitle,
 }: EventFormProps) {
@@ -229,7 +233,10 @@ export default function EventForm({
           value={location}
           onChangeText={setLocation}
         />
-
+        
+        <Text style={styles.label}>Tags</Text>
+        <Text>{JSON.stringify(tags, null, 2)}</Text>
+        
         <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
           <Text style={styles.buttonText}>{submitButtonText}</Text>
         </TouchableOpacity>

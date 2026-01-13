@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Alert } from "react-native";
 import EventForm from "./EventForm";
 
@@ -20,6 +20,7 @@ export default function CreateEvent() {
   const [dateEnd, setDateEnd] = useState(new Date());
   const [timeEnd, setTimeEnd] = useState(new Date());
   const [location, setLocation] = useState("");
+  const [tags, setTags] = useState<any[]>([]);
 
   const handleSubmit = async () => {
     if (!title || !description || !location) {
@@ -74,6 +75,32 @@ export default function CreateEvent() {
     }
   };
 
+  //todo: refactor this to global state once redux set up
+  const getTags = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/config`,
+        {
+          method: "GET",
+        }
+      );
+
+      if (!response.ok) {
+        console.error("Failed to fetch tags");
+        return;
+      }
+
+      const data = await response.json();
+      setTags(data[0]["tags"]);
+    } catch (e) {
+      console.error("Unable to get tags", e);
+    }
+  };
+
+  useEffect(() => {
+    getTags();
+  }, []);
+
   return (
     <EventForm
       title={title}
@@ -90,6 +117,8 @@ export default function CreateEvent() {
       setDateEnd={setDateEnd}
       timeEnd={timeEnd}
       setTimeEnd={setTimeEnd}
+      tags={tags}
+      setTags={setTags}
       onSubmit={handleSubmit}
       submitButtonText="Create Event"
       formTitle="Create New Event"
