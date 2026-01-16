@@ -27,6 +27,8 @@ interface EventFormProps {
   setDateEnd: (date: Date) => void;
   timeEnd: Date;
   setTimeEnd: (date: Date) => void;
+  tags: any[];
+  setTags: (tags: any[]) => void;
   price: string;
   setPrice: (text: string) => void;
   onSubmit: () => void;
@@ -52,6 +54,8 @@ export default function EventForm({
   price,
   setPrice,
   onSubmit,
+  tags,
+  setTags,
   submitButtonText,
   formTitle,
 }: EventFormProps) {
