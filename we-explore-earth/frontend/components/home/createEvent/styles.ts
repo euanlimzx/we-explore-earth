@@ -50,4 +50,25 @@ export const styles = StyleSheet.create({
     fontWeight: "600",
     textAlign: "center",
   },
+  priceContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    marginVertical: 15,
+    backgroundColor: "#fff",
+  },
+  dollarSign: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+    paddingLeft: 15,
+  },
+  priceInput: {
+    flex: 1,
+    padding: 15,
+    fontSize: 16,
+    paddingLeft: 5,
+  },
 });

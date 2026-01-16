@@ -74,6 +74,13 @@ export default function EventForm({
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
+  const formatPriceForDisplay = (cents: string): string => {
+    const padded = cents.padStart(3, "0");
+    const dollars = padded.slice(0, -2);
+    const centsPart = padded.slice(-2);
+    return `${parseInt(dollars, 10)}.${centsPart}`;
+  };
+
   const handleDateStartChange = (
     event: DateTimePickerEvent,
     selectedDate?: Date
@@ -135,8 +142,9 @@ export default function EventForm({
   };
 
   const handlePriceChange = (text: string) => {
-    const numericValue = text.replace(/[^0-9]/g, '');
-    setPrice(numericValue);
+    const numericValue = text.replace(/[^0-9]/g, "");
+    const trimmed = numericValue.replace(/^0+/, "") || "0";
+    setPrice(trimmed);
   };
 
   return (
@@ -242,14 +250,17 @@ export default function EventForm({
           value={location}
           onChangeText={setLocation}
         />
-    
-        <TextInput
-          style={styles.input}
-          placeholder="Price"
-          value={price}
-          onChangeText={handlePriceChange}
-          keyboardType="number-pad" 
-        />        
+
+        <View style={styles.priceContainer}>
+          <Text style={styles.dollarSign}>$</Text>
+          <TextInput
+            style={styles.priceInput}
+            placeholder="0.00"
+            value={formatPriceForDisplay(price || "0")}
+            onChangeText={handlePriceChange}
+            keyboardType="number-pad"
+          />
+        </View>
 
         <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
           <Text style={styles.buttonText}>{submitButtonText}</Text>
