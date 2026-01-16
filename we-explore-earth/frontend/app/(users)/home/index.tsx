@@ -1,10 +1,13 @@
 // STANDARD / THIRD-PARTY IMPORTS
 import { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, Alert, SafeAreaView } from 'react-native';
+import { View, Text, ActivityIndicator, Alert, SafeAreaView, ScrollView, } from 'react-native';
 
 // LOCAL COMPONENTS
-import AllEvents, { Event } from '../../components/home/allEvents';
-import EventDetails from '../../components/home/eventDetails';
+import EventView from '../../components/Calendar/eventView/eventView';
+import EventDetails from '../../components/Calendar/eventDetails/eventDetails';
+
+// TYPES
+import type { Event } from '../../components/Calendar/calendar';
 
 export default function HomeScreen() {
   // STATE VARIABLES
@@ -33,7 +36,7 @@ export default function HomeScreen() {
 
       const data: Event[] = await res.json();
       setEvents(data);
-    } catch (error) {
+    } catch {
       Alert.alert('Network Error', 'Could not fetch events.');
     } finally {
       setLoading(false);
@@ -41,7 +44,8 @@ export default function HomeScreen() {
   };
 
   // HANDLERS
-  const handleEventPress = (event: Event) => {
+  const handleEventPress = (event: Event | null) => {
+    if (!event) return;
     setSelectedEvent(event);
     setModalVisible(true);
   };
@@ -70,13 +74,14 @@ export default function HomeScreen() {
               Events
             </Text>
 
-            <AllEvents
-              events={events}
-              onEventPress={handleEventPress}
-            />
+            <ScrollView>
+              {events.filter(Boolean).map((event) => (
+                <EventView key={event.id} event={event} onPress={handleEventPress} />
+              ))}
+            </ScrollView>
 
             <EventDetails
-              visible={modalVisible}
+              visible={modalVisible && !!selectedEvent}
               event={selectedEvent}
               onClose={handleCloseModal}
             />

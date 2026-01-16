@@ -3,35 +3,39 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
-    padding: 16,
+    alignItems: 'center',
   },
   modalCard: {
-    backgroundColor: 'white',
-    borderRadius: 12,
+    width: '90%',
     padding: 16,
-    borderWidth: 1,
+    backgroundColor: '#fff',
+    borderRadius: 8,
   },
   title: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '600',
     marginBottom: 8,
   },
   body: {
-    marginBottom: 10,
+    fontSize: 14,
+    marginBottom: 8,
   },
   meta: {
-    marginTop: 6,
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 4,
   },
   closeButton: {
-    marginTop: 14,
+    marginTop: 12,
     padding: 10,
-    borderWidth: 1,
-    borderRadius: 10,
+    backgroundColor: '#007AFF',
+    borderRadius: 6,
     alignItems: 'center',
   },
   closeText: {
+    color: '#fff',
     fontWeight: '600',
   },
 });
