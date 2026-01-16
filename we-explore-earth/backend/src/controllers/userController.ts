@@ -80,6 +80,34 @@ export async function signupUser(req: Request, res: Response) {
   }
 };
 
+// PATCH /users/:id/
+export async function updateUser(req: Request, res:Response) {
+  try {
+    const { id } = req.params;
+    const { username, email, firstName, lastName, notificationToken, isAdmin } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    
+    const userDocument = await db.collection("users").doc(id).get();
+
+    if (!userDocument.exists) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const userData = userDocument.data() as User;  
+    if (notificationToken !== undefined) userData.notificationToken = notificationToken;
+  
+    await db.collection("users").doc(id).set(userData);
+    
+    res.json({ id: id, ...userData });
+    
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+}
+
 // POST /users/login
 export async function loginUser(req: Request, res: Response) {
   try {
