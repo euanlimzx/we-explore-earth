@@ -5,7 +5,9 @@ import { View, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { router } from 'expo-router';
 //LOCAL FILES
 import { styles } from './styles';
-import BackButton from '@/app/components/BackButton/backButton'
+import BackButton from '@/app/components/BackButton'
+import { useAppDispatch } from '@/app/redux/hooks';
+import { setUserState } from '@/app/redux/slices/userSlice';
 
 export default function LoginPage() {
     //REACT HOOKS
@@ -13,6 +15,7 @@ export default function LoginPage() {
     //STATE VARIABLES
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const dispatch = useAppDispatch();
     
     //HANDLERS
     async function handleLogin() {
@@ -22,15 +25,41 @@ export default function LoginPage() {
       }
 
       try {
-        //Need to call API to validate if user is in the database first 
+        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/users/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', },
+          body: JSON.stringify({
+              email,
+              password
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          Alert.alert(
+            'Login Failed', 
+            data.error || 'An unknown error occurred'
+          );
+          throw new Error(data.error || 'Login failed');
+        }
+        
+        dispatch(setUserState(data));
+
         console.log('Login successful');
         router.replace('/(users)/home');
       } catch (error) {
         console.error('Login error:', error);
-        Alert.alert('Login Failed', error instanceof Error ? error.message : 'An unknown error occurred');
+        Alert.alert(
+          'Login Failed', 
+          error instanceof Error ? error.message : 'An unknown error occurred'
+        );
       }
     }
     
+    async function handleForgotPassword() {
+      router.push('/reset' as any);
+    }
     //EFFECTS
     
     //RENDER
@@ -59,6 +88,10 @@ export default function LoginPage() {
 
             <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
                 <Text style={styles.buttonText}>LOGIN</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.forgotPasswordButton} onPress={handleForgotPassword}>
+                <Text style={styles.buttonText}>Forgot you password?</Text>
             </TouchableOpacity>
         </View>
       </>
