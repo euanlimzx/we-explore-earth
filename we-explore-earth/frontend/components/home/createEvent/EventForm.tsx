@@ -11,6 +11,8 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import { styles } from "./styles";
+import { EventTagsConfig, EventTagsSelection } from "../../../types/eventTags";
+import TagsSection from "./TagsSection";
 
 interface EventFormProps {
   title: string;
@@ -27,8 +29,9 @@ interface EventFormProps {
   setDateEnd: (date: Date) => void;
   timeEnd: Date;
   setTimeEnd: (date: Date) => void;
-  tags: any[];
-  setTags: (tags: any[]) => void;
+  eventTagsConfig: EventTagsConfig | null;
+  tagsSelection: EventTagsSelection;
+  onTagsChange: (newSelection: EventTagsSelection) => void;
   price: string;
   setPrice: (text: string) => void;
   hostedBy: string;
@@ -53,13 +56,14 @@ export default function EventForm({
   setDateEnd,
   timeEnd,
   setTimeEnd,
+  eventTagsConfig,
+  tagsSelection,
+  onTagsChange,
   price,
   setPrice,
   hostedBy,
   setHostedBy,
   onSubmit,
-  tags,
-  setTags,
   submitButtonText,
   formTitle,
 }: EventFormProps) {
@@ -272,6 +276,12 @@ export default function EventForm({
             keyboardType="number-pad"
           />
         </View>
+
+        <TagsSection
+          eventTagsConfig={eventTagsConfig}
+          tagsSelection={tagsSelection}
+          onTagsChange={onTagsChange}
+        />
 
         <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
           <Text style={styles.buttonText}>{submitButtonText}</Text>
