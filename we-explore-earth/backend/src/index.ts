@@ -1,8 +1,7 @@
-
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import './firestore'; // This initializes Firebase Admin
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import "./firestore"; // This initializes Firebase Admin
 import userRouter from "./routes/userRouter";
 import eventRouter from "./routes/eventRouter";
 import configRouter from "./routes/configRouter";
@@ -20,3 +19,4 @@ app.use("/config", configRouter);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
+});

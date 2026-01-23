@@ -8,7 +8,7 @@ export async function createEvent(req: Request, res: Response) {
   try {
     const { title, description, location, timeStart, timeEnd, price, hostedBy, tags } = req.body;
 
-    if (!title || !description || !location || !timeStart || !timeEnd || !price || !hostedBy || !tags) {
+    if (!title || !description || !location || !timeStart || !timeEnd || price == null || !hostedBy || !tags) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
