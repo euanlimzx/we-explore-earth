@@ -31,6 +31,8 @@ interface EventFormProps {
   setTags: (tags: any[]) => void;
   price: string;
   setPrice: (text: string) => void;
+  hostedBy: string;
+  setHostedBy: (text: string) => void;
   onSubmit: () => void;
   submitButtonText: string;
   formTitle: string;
@@ -53,6 +55,8 @@ export default function EventForm({
   setTimeEnd,
   price,
   setPrice,
+  hostedBy,
+  setHostedBy,
   onSubmit,
   tags,
   setTags,
@@ -249,6 +253,13 @@ export default function EventForm({
           placeholder="Location"
           value={location}
           onChangeText={setLocation}
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Hosted By"
+          value={hostedBy}
+          onChangeText={setHostedBy}
         />
 
         <View style={styles.priceContainer}>

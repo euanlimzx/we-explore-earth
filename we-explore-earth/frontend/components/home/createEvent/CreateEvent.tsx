@@ -21,6 +21,7 @@ export default function CreateEvent() {
   const [timeEnd, setTimeEnd] = useState(new Date());
   const [location, setLocation] = useState("");
   const [price, setPrice] = useState("");
+  const [hostedBy, setHostedBy] = useState("");
   const [tags, setTags] = useState<any[]>([]);
 
   const handleSubmit = async () => {
@@ -45,7 +46,8 @@ export default function CreateEvent() {
             location,
             timeStart: combinedTimeStart.toISOString(),
             timeEnd: combinedTimeEnd.toISOString(),
-            price
+            price,
+            hostedBy
           }),
         }
       );
@@ -63,6 +65,7 @@ export default function CreateEvent() {
       setTitle("");
       setDescription("");
       setLocation("");
+      setHostedBy("");
       const now = new Date();
       setDateStart(now);
       setTimeStart(now);
@@ -124,6 +127,8 @@ export default function CreateEvent() {
       setTags={setTags}
       price = {price}
       setPrice = {setPrice}
+      hostedBy={hostedBy}
+      setHostedBy={setHostedBy}
       onSubmit={handleSubmit}
       submitButtonText="Create Event"
       formTitle="Create New Event"
