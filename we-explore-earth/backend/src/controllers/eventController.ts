@@ -6,9 +6,9 @@ import { Event } from "../types/event";
 // create event
 export async function createEvent(req: Request, res: Response) {
   try {
-    const { title, description, location, timeStart, timeEnd, price} = req.body;
+    const { title, description, location, timeStart, timeEnd, price, maxAttendees, rsvpDeadline} = req.body;
 
-    if (!title || !description || !location || !timeStart || !timeEnd || !price) {
+    if (!title || !description || !location || !timeStart || !timeEnd || !price || !maxAttendees || !rsvpDeadline) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
@@ -18,7 +18,9 @@ export async function createEvent(req: Request, res: Response) {
       location,
       timeStart: new Date(timeStart),
       timeEnd: new Date(timeEnd),
-      price
+      price,
+      maxAttendees,
+      rsvpDeadline: new Date (rsvpDeadline)
     };
 
     const docRef = await db.collection("events").add(eventData);

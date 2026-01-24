@@ -50,4 +50,26 @@ export const styles = StyleSheet.create({
     fontWeight: "600",
     textAlign: "center",
   },
+  
+  imageButton: {
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  imagePreview: {
+    width: "100%",
+    height: 200,
+    borderRadius: 12,
+    marginTop: 8,
+  },
+
+  removeImageText: {
+    color: "#d00",
+    marginTop: 6,
+    textAlign: "center",
+  },
 });

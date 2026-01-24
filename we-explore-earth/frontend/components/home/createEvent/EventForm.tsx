@@ -6,11 +6,16 @@ import {
   TouchableOpacity,
   Platform,
   ScrollView,
+  Alert,
+  Image
 } from "react-native";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import { styles } from "./styles";
+import * as ImagePicker from 'expo-image-picker';
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+// import { storage } from "@/firebase.config";
 
 interface EventFormProps {
   title: string;
@@ -31,6 +36,12 @@ interface EventFormProps {
   setTags: (tags: any[]) => void;
   price: string;
   setPrice: (text: string) => void;
+  maxAttendees: string;
+  setMaxAttendees: (text: string) => void;
+  rsvpDeadline: Date;
+  setRsvpDeadline: (date: Date) => void;
+  imageUri: string|null;
+  setImageUri: (text: string | null) => void;
   onSubmit: () => void;
   submitButtonText: string;
   formTitle: string;
@@ -56,6 +67,12 @@ export default function EventForm({
   onSubmit,
   tags,
   setTags,
+  maxAttendees,
+  setMaxAttendees,
+  rsvpDeadline,
+  setRsvpDeadline,
+  imageUri,
+  setImageUri,
   submitButtonText,
   formTitle,
 }: EventFormProps) {
@@ -63,6 +80,7 @@ export default function EventForm({
   const [showTimeStartPicker, setShowTimeStartPicker] = useState(false);
   const [showDateEndPicker, setShowDateEndPicker] = useState(false);
   const [showTimeEndPicker, setShowTimeEndPicker] = useState(false);
+  const [showRsvpDeadlinePicker, setShowRsvpDeadlinePicker] = useState(false);
 
   const isAndroid = Platform.OS === "android";
 
@@ -138,6 +156,65 @@ export default function EventForm({
     const numericValue = text.replace(/[^0-9]/g, '');
     setPrice(numericValue);
   };
+
+  const handleMaxAttendeesChange = (text: string) => {
+    const numericValue = text.replace(/[^0-9]/g, '');
+    setMaxAttendees(numericValue);
+  };  
+
+ const handleRsvpDeadlineChange = (
+    event: DateTimePickerEvent,
+    selectedDate?: Date
+  ) => {
+    if (isAndroid) {
+      setShowRsvpDeadlinePicker(false);
+      if (event.type === "dismissed") {
+        return;
+      }
+    }
+    if (selectedDate) {
+      setRsvpDeadline(selectedDate);
+    }
+  };  
+
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+      Alert.alert('Permission required', 'Permission to access the media library is required.');
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 0.7,
+    });
+
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
+    }
+  };
+
+// const uploadImageAsync = async (uri: string) => {
+//   const response = await fetch(uri);
+//   const blob = await response.blob();
+
+//   const imageRef = ref(
+//     storage,
+//     `events/${Date.now()}.jpg`
+//   );
+
+//   await uploadBytes(imageRef, blob);
+//   return await getDownloadURL(imageRef);
+// };  
+
+// const handleSubmit = async () => {
+//   let imageUrl = null;
+//   if (imageUri) {
+//     imageUrl = await uploadImageAsync(imageUri);
+//   }
+//   onSubmit ();
+// }
 
   return (
     <View style={styles.container}>
@@ -249,7 +326,51 @@ export default function EventForm({
           value={price}
           onChangeText={handlePriceChange}
           keyboardType="number-pad" 
-        />        
+        />  
+
+         <TextInput
+          style={styles.input}
+          placeholder="Maximum Number of Attendees"
+          value={maxAttendees}
+          onChangeText={handleMaxAttendeesChange}
+          keyboardType="number-pad" 
+        />          
+
+        <Text style={styles.label}>RSVP Deadline</Text>
+        {isAndroid ? (
+          <TouchableOpacity
+            style={styles.input}
+            onPress={() => setShowRsvpDeadlinePicker(true)}
+          >
+            <Text>{formatDate(rsvpDeadline)}</Text>
+          </TouchableOpacity>
+        ) : null}
+        {(isAndroid && showRsvpDeadlinePicker) || !isAndroid ? (
+          <DateTimePicker
+            value={rsvpDeadline}
+            mode="date"
+            display="default"
+            maximumDate={dateStart}
+            onChange={handleRsvpDeadlineChange}
+          />
+        ) : null}
+
+        <Text style={styles.label}>Cover Image</Text>
+        <TouchableOpacity onPress={pickImage} style={styles.imageButton}>
+          <Text>{imageUri ? "Change photo" : "Add photo"}</Text>
+        </TouchableOpacity>
+        {imageUri && (
+          <>
+           <Image
+              source={{ uri: imageUri }}
+              style={styles.imagePreview}
+              resizeMode="cover"
+              />
+          <TouchableOpacity onPress={() => setImageUri(null)}>
+           <Text style={styles.removeImageText}>Remove photo</Text>
+          </TouchableOpacity>
+          </>
+        )}
 
         <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
           <Text style={styles.buttonText}>{submitButtonText}</Text>

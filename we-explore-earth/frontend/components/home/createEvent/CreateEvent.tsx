@@ -21,7 +21,10 @@ export default function CreateEvent() {
   const [timeEnd, setTimeEnd] = useState(new Date());
   const [location, setLocation] = useState("");
   const [price, setPrice] = useState("");
+  const [maxAttendees, setMaxAttendees] = useState("");
   const [tags, setTags] = useState<any[]>([]);
+  const [rsvpDeadline, setRsvpDeadline] = useState(new Date());
+  const [imageUri, setImageUri] = useState<string | null>(null);
 
   const handleSubmit = async () => {
     if (!title || !description || !location) {
@@ -45,7 +48,9 @@ export default function CreateEvent() {
             location,
             timeStart: combinedTimeStart.toISOString(),
             timeEnd: combinedTimeEnd.toISOString(),
-            price
+            price,
+            maxAttendees,
+            rsvpDeadline: rsvpDeadline.toISOString(),
           }),
         }
       );
@@ -69,6 +74,9 @@ export default function CreateEvent() {
       setDateEnd(now);
       setTimeEnd(now);
       setPrice("")
+      setMaxAttendees("")
+      setRsvpDeadline(now)
+      setImageUri(null);
     } catch (error) {
       console.error("Error creating event:", error);
       Alert.alert(
@@ -122,8 +130,14 @@ export default function CreateEvent() {
       setTimeEnd={setTimeEnd}
       tags={tags}
       setTags={setTags}
-      price = {price}
-      setPrice = {setPrice}
+      price={price}
+      setPrice={setPrice}
+      maxAttendees={maxAttendees}
+      setMaxAttendees={setMaxAttendees}
+      rsvpDeadline={rsvpDeadline}
+      setRsvpDeadline={setRsvpDeadline}
+      imageUri={imageUri}
+      setImageUri={setImageUri}
       onSubmit={handleSubmit}
       submitButtonText="Create Event"
       formTitle="Create New Event"

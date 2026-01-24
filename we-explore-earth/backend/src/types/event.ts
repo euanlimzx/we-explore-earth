@@ -5,4 +5,7 @@ export interface Event {
     timeStart: Date;
     timeEnd: Date;
     price: number;
+    maxAttendees: number;
+    rsvpDeadline: Date;
+
   }
