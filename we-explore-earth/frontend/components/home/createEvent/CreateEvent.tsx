@@ -1,6 +1,21 @@
 import { useState, useEffect } from "react";
 import { Alert } from "react-native";
 import EventForm from "./EventForm";
+import { EventTagsConfig, EventTagsSelection } from "../../../types/eventTags";
+
+// Initialize tags selection with all options set to false
+const initializeTagsSelection = (config: EventTagsConfig): EventTagsSelection => {
+  const selection: EventTagsSelection = {};
+  for (const [fieldName, options] of Object.entries(config)) {
+    if (Array.isArray(options)) {
+      selection[fieldName] = {};
+      for (const option of options) {
+        selection[fieldName][option] = false;
+      }
+    }
+  }
+  return selection;
+};
 
 // Helper function to combine date and time into a Date object
 const combineDateAndTime = (date: Date, time: Date): Date => {
@@ -21,8 +36,10 @@ export default function CreateEvent() {
   const [timeEnd, setTimeEnd] = useState(new Date());
   const [location, setLocation] = useState("");
   const [price, setPrice] = useState("");
+  const [hostedBy, setHostedBy] = useState("");
+  const [eventTagsConfig, setEventTagsConfig] = useState<EventTagsConfig | null>(null);
   const [maxAttendees, setMaxAttendees] = useState("");
-  const [tags, setTags] = useState<any[]>([]);
+  const [tagsSelection, setTagsSelection] = useState<EventTagsSelection>({});
   const [rsvpDeadline, setRsvpDeadline] = useState(new Date());
   const [imageUri, setImageUri] = useState<string | null>(null);
 
@@ -49,6 +66,8 @@ export default function CreateEvent() {
             timeStart: combinedTimeStart.toISOString(),
             timeEnd: combinedTimeEnd.toISOString(),
             price,
+            hostedBy,
+            tags: tagsSelection,
             maxAttendees,
             rsvpDeadline: rsvpDeadline.toISOString(),
           }),
@@ -68,12 +87,17 @@ export default function CreateEvent() {
       setTitle("");
       setDescription("");
       setLocation("");
+      setHostedBy("");
       const now = new Date();
       setDateStart(now);
       setTimeStart(now);
       setDateEnd(now);
       setTimeEnd(now);
-      setPrice("")
+      setPrice("");
+      // Reset tags selection
+      if (eventTagsConfig) {
+        setTagsSelection(initializeTagsSelection(eventTagsConfig));
+      }
       setMaxAttendees("")
       setRsvpDeadline(now)
       setImageUri(null);
@@ -86,8 +110,7 @@ export default function CreateEvent() {
     }
   };
 
-  //todo: refactor this to global state once redux set up
-  const getTags = async () => {
+  const getEventTagsConfig = async () => {
     try {
       const response = await fetch(
         `${process.env.EXPO_PUBLIC_API_URL}/config`,
@@ -97,19 +120,25 @@ export default function CreateEvent() {
       );
 
       if (!response.ok) {
-        console.error("Failed to fetch tags");
+        console.error("Failed to fetch event tags config");
         return;
       }
 
       const data = await response.json();
-      setTags(data[0]["tags"]);
+      // Find the event_tags document by id
+      const eventTagsDoc = data.find((doc: { id: string }) => doc.id === "event_tags");
+      if (eventTagsDoc) {
+        const { id, ...config } = eventTagsDoc;
+        setEventTagsConfig(config as EventTagsConfig);
+        setTagsSelection(initializeTagsSelection(config as EventTagsConfig));
+      }
     } catch (e) {
-      console.error("Unable to get tags", e);
+      console.error("Unable to get event tags config", e);
     }
   };
 
   useEffect(() => {
-    getTags();
+    getEventTagsConfig();
   }, []);
 
   return (
@@ -128,10 +157,13 @@ export default function CreateEvent() {
       setDateEnd={setDateEnd}
       timeEnd={timeEnd}
       setTimeEnd={setTimeEnd}
-      tags={tags}
-      setTags={setTags}
+      eventTagsConfig={eventTagsConfig}
+      tagsSelection={tagsSelection}
+      onTagsChange={setTagsSelection}
       price={price}
       setPrice={setPrice}
+      hostedBy={hostedBy}
+      setHostedBy={setHostedBy}
       maxAttendees={maxAttendees}
       setMaxAttendees={setMaxAttendees}
       rsvpDeadline={rsvpDeadline}

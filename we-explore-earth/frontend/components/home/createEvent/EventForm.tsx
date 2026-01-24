@@ -13,6 +13,8 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import { styles } from "./styles";
+import { EventTagsConfig, EventTagsSelection } from "../../../types/eventTags";
+import TagsSection from "./TagsSection";
 import * as ImagePicker from 'expo-image-picker';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 // import { storage } from "@/firebase.config";
@@ -32,10 +34,13 @@ interface EventFormProps {
   setDateEnd: (date: Date) => void;
   timeEnd: Date;
   setTimeEnd: (date: Date) => void;
-  tags: any[];
-  setTags: (tags: any[]) => void;
+  eventTagsConfig: EventTagsConfig | null;
+  tagsSelection: EventTagsSelection;
+  onTagsChange: (newSelection: EventTagsSelection) => void;
   price: string;
   setPrice: (text: string) => void;
+  hostedBy: string;
+  setHostedBy: (text: string) => void;
   maxAttendees: string;
   setMaxAttendees: (text: string) => void;
   rsvpDeadline: Date;
@@ -62,11 +67,14 @@ export default function EventForm({
   setDateEnd,
   timeEnd,
   setTimeEnd,
+  eventTagsConfig,
+  tagsSelection,
+  onTagsChange,
   price,
   setPrice,
+  hostedBy,
+  setHostedBy,
   onSubmit,
-  tags,
-  setTags,
   maxAttendees,
   setMaxAttendees,
   rsvpDeadline,
@@ -90,6 +98,13 @@ export default function EventForm({
 
   const formatTime = (date: Date): string => {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
+
+  const formatPriceForDisplay = (cents: string): string => {
+    const padded = cents.padStart(3, "0");
+    const dollars = padded.slice(0, -2);
+    const centsPart = padded.slice(-2);
+    return `${parseInt(dollars, 10)}.${centsPart}`;
   };
 
   const handleDateStartChange = (
@@ -153,8 +168,9 @@ export default function EventForm({
   };
 
   const handlePriceChange = (text: string) => {
-    const numericValue = text.replace(/[^0-9]/g, '');
-    setPrice(numericValue);
+    const numericValue = text.replace(/[^0-9]/g, "");
+    const trimmed = numericValue.replace(/^0+/, "") || "0";
+    setPrice(trimmed);
   };
 
   const handleMaxAttendeesChange = (text: string) => {
@@ -319,14 +335,31 @@ export default function EventForm({
           value={location}
           onChangeText={setLocation}
         />
-    
+
         <TextInput
           style={styles.input}
-          placeholder="Price"
-          value={price}
-          onChangeText={handlePriceChange}
-          keyboardType="number-pad" 
-        />  
+          placeholder="Hosted By"
+          value={hostedBy}
+          onChangeText={setHostedBy}
+        />
+
+        <View style={styles.priceContainer}>
+          <Text style={styles.dollarSign}>$</Text>
+          <TextInput
+            style={styles.priceInput}
+            placeholder="0.00"
+            value={formatPriceForDisplay(price || "0")}
+            onChangeText={handlePriceChange}
+            keyboardType="number-pad"
+          />
+        </View>
+
+        <TagsSection
+          eventTagsConfig={eventTagsConfig}
+          tagsSelection={tagsSelection}
+          onTagsChange={onTagsChange}
+        />
+         
 
          <TextInput
           style={styles.input}
