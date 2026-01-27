@@ -5,7 +5,7 @@ import { View, Text, TouchableOpacity, TextInput, Alert } from "react-native";
 import { router } from "expo-router";
 //LOCAL FILES
 import { styles } from "./styles";
-import BackButton from "@/app/components/BackButton";
+import BackButton from "@/app/components/BackButton/backButton";
 import { useAppDispatch } from "@/app/redux/hooks";
 import { setUserState } from "@/app/redux/slices/userSlice";
 
@@ -47,7 +47,7 @@ export default function LoginPage() {
       dispatch(setUserState(data));
 
       console.log("Login successful");
-      router.replace("/(admin)/events");
+      router.replace("(users)/home" as any);
     } catch (error) {
       console.error("Login error:", error);
       Alert.alert(
