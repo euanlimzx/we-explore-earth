@@ -1,7 +1,7 @@
 import { db } from "../firestore";
 import { Request, Response } from "express";
 import admin from "firebase-admin";
-import { User } from "../types/user";
+import { User, NewUser } from "@shared/types/user";
 import nodemailer from 'nodemailer';
 
 // GET /users/:id
@@ -58,13 +58,14 @@ export async function signupUser(req: Request, res: Response) {
     });
       
     //Part 2: Create user document
-    const userData: User = {
+    const userData: NewUser = {
       username,
       email,
       firstName,
       lastName,
       notificationToken: null,
       isAdmin: false,
+      events: []
     };
 
     //Part 3: POST user document to Firestore collection
@@ -96,7 +97,7 @@ export async function updateUser(req: Request, res:Response) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const userData = userDocument.data() as User;  
+    const userData = userDocument.data() as NewUser;  
     if (notificationToken !== undefined) userData.notificationToken = notificationToken;
   
     await db.collection("users").doc(id).set(userData);
