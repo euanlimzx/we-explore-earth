@@ -7,7 +7,7 @@ import EventView from '../../components/Calendar/eventView/eventView';
 import EventDetails from '../../components/Calendar/eventDetails/eventDetails';
 
 // TYPES
-import type { Event } from '../../components/Calendar/calendar';
+import type { Event } from '../../types/events';
 
 export default function HomeScreen() {
   // STATE VARIABLES
@@ -57,6 +57,7 @@ export default function HomeScreen() {
 
   // EFFECTS
   useEffect(() => {
+    console.log("Fetching all events");
     fetchEvents();
   }, []);
 
