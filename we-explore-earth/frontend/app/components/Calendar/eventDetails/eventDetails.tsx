@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity } from 'react-native';
 import { styles } from './styles';
-import type { Event } from '../../../types/events';
+import type { Event } from '@shared/types/event';
 
 type Props = {
   visible: boolean;

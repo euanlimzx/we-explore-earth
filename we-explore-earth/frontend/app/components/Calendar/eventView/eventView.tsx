@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, View } from 'react-native';
 import { styles } from './styles';
-import type { Event } from '../../../types/events';
+import type { Event } from '@shared/types/event';
 
 type Props = {
   event: Event;

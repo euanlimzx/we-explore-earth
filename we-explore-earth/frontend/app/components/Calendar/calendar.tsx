@@ -7,7 +7,7 @@ import EventView from './eventView/eventView';
 import EventDetails from './eventDetails/eventDetails';
 
 // TYPES
-import type { Event } from '../../types/events';
+import type { Event } from '@shared/types/event';
 
 export default function Calendar() {
   // STATE VARIABLES

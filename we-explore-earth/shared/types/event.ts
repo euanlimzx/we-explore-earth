@@ -1,7 +1,7 @@
 //We have to make out own firestore timestamp because /shared/types doesn't have firebase node modules local to it
 export interface FirestoreTimestamp {
-    seconds: number;
-    nanoseconds: number;
+    _seconds: number;
+    _nanoseconds: number;
 }
   
   
