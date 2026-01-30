@@ -27,7 +27,14 @@ export async function signupUser(req: Request, res: Response) {
     }
 
     const normalizedEmail = String(email).trim().toLowerCase();
-    const isAdmin = normalizedEmail.endsWith("@wee.com");
+
+    const adminDoc = await db
+      .collection("admins")
+      .doc(normalizedEmail)
+      .get(); 
+    const isAdmin = adminDoc.exists;
+
+    
 
     //Part 1: Validate the user using firebase Auth + Send email verification link
     const userRecord = await admin.auth().createUser({

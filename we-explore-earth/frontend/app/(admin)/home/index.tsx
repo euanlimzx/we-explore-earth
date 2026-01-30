@@ -1,6 +1,7 @@
 import { View, Text } from 'react-native';
 import { useAppSelector } from '@/app/redux/hooks';
 
+
 export default function HomeScreen() {
   const userData = useAppSelector((state) => state.user);
 
@@ -18,6 +19,8 @@ export default function HomeScreen() {
       <Text>{userData?.lastName}</Text>
       <Text>{userData?.notificationToken}</Text>
       <Text>{userData?.isAdmin ? 'true' : 'false'}</Text>
+      
+
     </View>
   );
 }
