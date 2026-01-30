@@ -1,5 +1,5 @@
 // STANDARD / THIRD-PARTY IMPORTS
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { View, Text, ActivityIndicator, Alert, SafeAreaView, ScrollView} from 'react-native';
 
 // LOCAL COMPONENTS
@@ -11,10 +11,25 @@ import type { Event } from '@shared/types/event';
 
 export default function Calendar() {
   // STATE VARIABLES
-  const [events, setEvents] = useState<Event[]>([]);
+  const [allEvents, setAllEvents] = useState<Event[]>([]);
+  const [currentEvents, setCurrentEvents] = useState<Event[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // TIME FILTERING - only upcoming events
+  const timeFiltering = useMemo(() => {
+    const now = Date.now();
+    return allEvents.filter((event) => {
+      const eventTime = event.timeStart._seconds * 1000; // Convert seconds to milliseconds
+      return eventTime >= now;
+    });
+  }, [allEvents]);
+
+  // Update currentEvents when timeFiltering changes
+  useEffect(() => {
+    setCurrentEvents(timeFiltering);
+  }, [timeFiltering]);
 
   // DATA FETCHING
   const fetchEvents = async () => {
@@ -35,7 +50,7 @@ export default function Calendar() {
       }
 
       const data: Event[] = await res.json();
-      setEvents(data);
+      setAllEvents(data);
     } catch {
       Alert.alert('Network Error', 'Could not fetch events.');
     } finally {
@@ -76,7 +91,7 @@ export default function Calendar() {
             </Text>
 
             <ScrollView>
-              {events.filter(Boolean).map((event) => (
+              {currentEvents.filter(Boolean).map((event) => (
                 <EventView key={event.id} event={event} onPress={handleEventPress} />
               ))}
             </ScrollView>
