@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Alert } from "react-native";
-import EventForm from "./EventForm";
+import EventForm from "@/components/events/EventForm";
 import { EventTagsConfig, EventTagsSelection } from "@/types/eventTags";
 
 // Initialize tags selection with all options set to false
@@ -27,7 +27,7 @@ const combineDateAndTime = (date: Date, time: Date): Date => {
   return combined;
 };
 
-export default function CreateEvent() {
+export default function NewEventPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dateStart, setDateStart] = useState(new Date());

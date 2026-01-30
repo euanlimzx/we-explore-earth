@@ -6,9 +6,31 @@ import { Event } from "../types/event";
 // create event
 export async function createEvent(req: Request, res: Response) {
   try {
-    const { title, description, location, timeStart, timeEnd, price, maxAttendees, rsvpDeadline, hostedBy, tags } = req.body;
+    const {
+      title,
+      description,
+      location,
+      timeStart,
+      timeEnd,
+      price,
+      maxAttendees,
+      rsvpDeadline,
+      hostedBy,
+      tags,
+    } = req.body;
 
-    if (!title || !description || !location || !timeStart || !timeEnd || !price || !maxAttendees || !rsvpDeadline == null || !hostedBy || !tags) {
+    if (
+      !title ||
+      !description ||
+      !location ||
+      !timeStart ||
+      !timeEnd ||
+      !price ||
+      !maxAttendees ||
+      !rsvpDeadline ||
+      !hostedBy ||
+      !tags
+    ) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
@@ -22,7 +44,7 @@ export async function createEvent(req: Request, res: Response) {
       hostedBy,
       tags,
       maxAttendees,
-      rsvpDeadline: new Date (rsvpDeadline)
+      rsvpDeadline: new Date(rsvpDeadline),
     };
 
     const docRef = await db.collection("events").add(eventData);
@@ -34,27 +56,25 @@ export async function createEvent(req: Request, res: Response) {
   }
 }
 
-export async function getEvent (req: Request, res: Response) {
+export async function getEvent(req: Request, res: Response) {
   try {
     const event = await db.collection("events").doc(req.params.id).get();
-    if (!event.exists){
-      return res.status(404).json({error: "Event not found"});
+    if (!event.exists) {
+      return res.status(404).json({ error: "Event not found" });
     }
-    res.json({id: event.id, ...event.data()})
-  }
-  catch(error){
+    res.json({ id: event.id, ...event.data() });
+  } catch (error) {
     console.error("Error fetching event: ", error);
-    return res.status(500).json({error: "Failed to fetch event" });
+    return res.status(500).json({ error: "Failed to fetch event" });
   }
 }
 
 export async function getAllEvents(req: Request, res: Response) {
   try {
-
     //get the snapshop
     const snapshot = await db.collection("events").get();
 
-    //maps the docs into an array 
+    //maps the docs into an array
     const events = snapshot.docs.map((doc) => {
       const data = doc.data();
       return {
@@ -63,12 +83,13 @@ export async function getAllEvents(req: Request, res: Response) {
       };
     });
 
-    //send data back 
+    //send data back
     console.log(`Fetched ${events.length} events successfully`);
     return res.status(200).json(events);
-
   } catch (error) {
     console.error("Error in getAllEvents:", error);
-    return res.status(500).json({ error: "failed to fetch events from database" });
+    return res
+      .status(500)
+      .json({ error: "failed to fetch events from database" });
   }
 }
