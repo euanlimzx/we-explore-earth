@@ -113,7 +113,7 @@ export default function NewEventPage() {
   const getEventTagsConfig = async () => {
     try {
       const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/config`,
+        `${process.env.EXPO_PUBLIC_API_URL}/config/categories`,
         {
           method: "GET",
         }
@@ -124,14 +124,9 @@ export default function NewEventPage() {
         return;
       }
 
-      const data = await response.json();
-      // Find the event_tags document by id
-      const eventTagsDoc = data.find((doc: { id: string }) => doc.id === "event_tags");
-      if (eventTagsDoc) {
-        const { id, ...config } = eventTagsDoc;
-        setEventTagsConfig(config as EventTagsConfig);
-        setTagsSelection(initializeTagsSelection(config as EventTagsConfig));
-      }
+      const config = await response.json() as EventTagsConfig;
+      setEventTagsConfig(config);
+      setTagsSelection(initializeTagsSelection(config));
     } catch (e) {
       console.error("Unable to get event tags config", e);
     }
