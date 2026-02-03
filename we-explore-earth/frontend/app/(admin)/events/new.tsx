@@ -2,32 +2,10 @@ import { useState, useEffect } from "react";
 import { Alert } from "react-native";
 import EventForm from "@/components/events/EventForm";
 import { EventTagsConfig, EventTagsSelection } from "@shared/types/event";
-
-// Initialize tags selection with all options set to false
-const initializeTagsSelection = (
-  config: EventTagsConfig,
-): EventTagsSelection => {
-  const selection: EventTagsSelection = {};
-  for (const [fieldName, options] of Object.entries(config)) {
-    if (Array.isArray(options)) {
-      selection[fieldName] = {};
-      for (const option of options) {
-        selection[fieldName][option] = false;
-      }
-    }
-  }
-  return selection;
-};
-
-// Helper function to combine date and time into a Date object
-const combineDateAndTime = (date: Date, time: Date): Date => {
-  const combined = new Date(date);
-  combined.setHours(time.getHours());
-  combined.setMinutes(time.getMinutes());
-  combined.setSeconds(time.getSeconds());
-  combined.setMilliseconds(time.getMilliseconds());
-  return combined;
-};
+import {
+  initializeTagsSelection,
+  combineDateAndTime,
+} from "@/utils/eventUtils";
 
 export default function NewEventPage() {
   const [title, setTitle] = useState("");

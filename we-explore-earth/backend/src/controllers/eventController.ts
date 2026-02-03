@@ -96,3 +96,68 @@ export async function getAllEvents(req: Request, res: Response) {
       .json({ error: "failed to fetch events from database" });
   }
 }
+
+// update event
+export async function updateEvent(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const {
+      title,
+      description,
+      location,
+      timeStart,
+      timeEnd,
+      price,
+      maxAttendees,
+      rsvpDeadline,
+      hostedBy,
+      tags,
+    } = req.body;
+
+    if (
+      !title ||
+      !description ||
+      !location ||
+      !timeStart ||
+      !timeEnd ||
+      price == null ||
+      !maxAttendees ||
+      !rsvpDeadline ||
+      !hostedBy ||
+      !tags
+    ) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    // Check if event exists
+    const eventRef = db.collection("events").doc(id);
+    const eventDoc = await eventRef.get();
+    
+    if (!eventDoc.exists) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    const eventData: FirestoreEventData = {
+      title,
+      description,
+      location,
+      timeStart: new Date(timeStart),
+      timeEnd: new Date(timeEnd),
+      price: typeof price === "string" ? parseInt(price, 10) : price,
+      hostedBy,
+      tags,
+      maxAttendees:
+        typeof maxAttendees === "string"
+          ? parseInt(maxAttendees, 10)
+          : maxAttendees,
+      rsvpDeadline: new Date(rsvpDeadline),
+    };
+
+    await eventRef.update(eventData as any);
+
+    return res.status(200).json({ id, ...eventData });
+  } catch (error) {
+    console.error("Error updating event:", error);
+    return res.status(500).json({ error: "Failed to update event" });
+  }
+}
