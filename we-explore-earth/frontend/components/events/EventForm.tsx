@@ -13,7 +13,7 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import { styles } from "./styles";
-import { EventTagsConfig, EventTagsSelection } from "@/types/eventTags";
+import { EventTagsConfig, EventTagsSelection } from "@shared/types/event";
 import TagsSection from "./TagsSection";
 import * as ImagePicker from 'expo-image-picker';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";

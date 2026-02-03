@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { TagSelectorModalProps } from "@/types/eventTags";
+import { TagSelectorModalProps } from "@shared/types/event";
 import { styles } from "./styles";
 
 export default function TagSelectorModal({

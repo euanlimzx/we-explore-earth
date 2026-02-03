@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Alert } from "react-native";
 import EventForm from "@/components/events/EventForm";
-import { EventTagsConfig, EventTagsSelection } from "@/types/eventTags";
+import { EventTagsConfig, EventTagsSelection } from "@shared/types/event";
 
 // Initialize tags selection with all options set to false
 const initializeTagsSelection = (config: EventTagsConfig): EventTagsSelection => {

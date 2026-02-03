@@ -1,7 +1,7 @@
 import { db } from "../firestore";
 import { Request, Response } from "express";
 import admin from "firebase-admin";
-import { Event } from "../types/event";
+import { FirestoreEventData } from "@shared/types/event";
 
 // create event
 export async function createEvent(req: Request, res: Response) {
@@ -34,16 +34,16 @@ export async function createEvent(req: Request, res: Response) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-    const eventData: Event = {
+    const eventData: FirestoreEventData = {
       title,
       description,
       location,
       timeStart: new Date(timeStart),
       timeEnd: new Date(timeEnd),
-      price,
+      price: typeof price === 'string' ? parseInt(price, 10) : price,
       hostedBy,
       tags,
-      maxAttendees,
+      maxAttendees: typeof maxAttendees === 'string' ? parseInt(maxAttendees, 10) : maxAttendees,
       rsvpDeadline: new Date(rsvpDeadline),
     };
 
