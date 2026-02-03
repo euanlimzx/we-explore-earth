@@ -209,3 +209,41 @@ export async function resetPassword(req: Request, res: Response) {
     res.status(500).json({ error: e.message });
   }
 }
+
+// GET /users/:id/rsvps
+export async function getUserRSVPs(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+
+    const userDoc = await db.collection("users").doc(id).get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const userData = userDoc.data()!;
+    const userEvents = userData.events || [];
+
+    if (userEvents.length === 0) {
+      return res.json([]);
+    }
+
+    const eventIds = userEvents.map((e: { eventID: string }) => e.eventID);
+    const eventsSnapshot = await db.collection("events")
+      .where(admin.firestore.FieldPath.documentId(), 'in', eventIds)
+      .get();
+
+    const rsvps = eventsSnapshot.docs.map((doc) => {
+      const userRSVP = userEvents.find((e: { eventID: string }) => e.eventID === doc.id);
+      return {
+        event: { id: doc.id, ...doc.data() },
+        status: userRSVP?.status || null,
+      };
+    });
+
+    res.json(rsvps);
+  } catch (e: any) {
+    console.error("Error fetching user RSVPs:", e);
+    res.status(500).json({ error: e.message });
+  }
+}

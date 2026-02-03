@@ -73,18 +73,15 @@ export async function getAllEvents(req: Request, res: Response) {
   }
 }
 
-// POST /events/:id/rsvp - Add or update RSVP
 export async function addOrUpdateRSVP(req: Request, res: Response) {
   try {
     const eventId = req.params.id;
     const { userID, status } = req.body;
 
-    // Validate required fields
     if (!userID || !status) {
       return res.status(400).json({ error: "userID and status are required" });
     }
 
-    // Validate status value
     if (status !== 'YES' && status !== 'MAYBE') {
       return res.status(400).json({ error: "status must be 'YES' or 'MAYBE'" });
     }
@@ -92,7 +89,6 @@ export async function addOrUpdateRSVP(req: Request, res: Response) {
     const eventRef = db.collection("events").doc(eventId);
     const userRef = db.collection("users").doc(userID);
 
-    // Use transaction to update both documents atomically
     await db.runTransaction(async (transaction) => {
       const eventDoc = await transaction.get(eventRef);
       const userDoc = await transaction.get(userRef);
@@ -107,7 +103,6 @@ export async function addOrUpdateRSVP(req: Request, res: Response) {
       const eventData = eventDoc.data()!;
       const userData = userDoc.data()!;
 
-      // Update event's attendees array
       const attendees = eventData.attendees || [];
       const existingAttendeeIndex = attendees.findIndex((a: { userID: string }) => a.userID === userID);
       if (existingAttendeeIndex >= 0) {
@@ -116,7 +111,6 @@ export async function addOrUpdateRSVP(req: Request, res: Response) {
         attendees.push({ userID, status });
       }
 
-      // Update user's events array
       const userEvents = userData.events || [];
       const existingEventIndex = userEvents.findIndex((e: { eventID: string }) => e.eventID === eventId);
       if (existingEventIndex >= 0) {
@@ -139,13 +133,11 @@ export async function addOrUpdateRSVP(req: Request, res: Response) {
   }
 }
 
-// DELETE /events/:id/rsvp - Remove RSVP
 export async function removeRSVP(req: Request, res: Response) {
   try {
     const eventId = req.params.id;
     const { userID } = req.body;
 
-    // Validate required fields
     if (!userID) {
       return res.status(400).json({ error: "userID is required" });
     }
@@ -153,7 +145,6 @@ export async function removeRSVP(req: Request, res: Response) {
     const eventRef = db.collection("events").doc(eventId);
     const userRef = db.collection("users").doc(userID);
 
-    // Use transaction to update both documents atomically
     await db.runTransaction(async (transaction) => {
       const eventDoc = await transaction.get(eventRef);
       const userDoc = await transaction.get(userRef);
@@ -168,12 +159,10 @@ export async function removeRSVP(req: Request, res: Response) {
       const eventData = eventDoc.data()!;
       const userData = userDoc.data()!;
 
-      // Remove user from event's attendees array
       const attendees = (eventData.attendees || []).filter(
         (a: { userID: string }) => a.userID !== userID
       );
 
-      // Remove event from user's events array
       const userEvents = (userData.events || []).filter(
         (e: { eventID: string }) => e.eventID !== eventId
       );
