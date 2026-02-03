@@ -64,6 +64,17 @@ export default function RSVPModal({ visible, event, currentRSVP, onClose, onRSVP
     }
   };
 
+  const confirmAndRemoveRSVP = () => {
+    Alert.alert(
+      'Cancel RSVP',
+      'Do you want to cancel your RSVP for this event?',
+      [
+        { text: 'No', style: 'cancel' },
+        { text: 'Yes', style: 'destructive', onPress: handleRemoveRSVP },
+      ]
+    );
+  };
+
   const handleRemoveRSVP = async () => {
     if (!event || !userId || !user) return;
 
@@ -133,7 +144,7 @@ export default function RSVPModal({ visible, event, currentRSVP, onClose, onRSVP
               </TouchableOpacity>
 
               {currentRSVP && (
-                <TouchableOpacity onPress={handleRemoveRSVP} style={styles.removeButton}>
+                <TouchableOpacity onPress={confirmAndRemoveRSVP} style={styles.removeButton}>
                   <Text style={styles.removeText}>Remove RSVP</Text>
                 </TouchableOpacity>
               )}
