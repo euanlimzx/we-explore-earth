@@ -1,6 +1,8 @@
+import { RSVPStatus } from './event';
+
 export interface UserRSVP {
   eventID: string;
-  status: string;
+  status: RSVPStatus;
 }
 
 export interface NewUser {

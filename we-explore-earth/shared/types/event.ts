@@ -5,9 +5,11 @@ export interface FirestoreTimestamp {
 }
   
   
+export type RSVPStatus = 'YES' | 'MAYBE';
+
 export interface EventRSVP {
     userID: string;
-    status: string;
+    status: RSVPStatus;
 }
   
 export interface NewEvent {

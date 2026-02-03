@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { Modal, View, Text, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { styles } from './styles';
-import type { Event } from '@shared/types/event';
+import type { Event, RSVPStatus } from '@shared/types/event';
 import { useUser } from '../../../../hooks/useUser';
 import { useAppDispatch } from '../../../redux/hooks';
 import { updateUserState } from '../../../redux/slices/userSlice';
-
-type RSVPStatus = 'YES' | 'MAYBE';
 
 type Props = {
   visible: boolean;
