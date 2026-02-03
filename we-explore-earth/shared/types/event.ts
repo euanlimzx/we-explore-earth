@@ -84,7 +84,10 @@ export interface TagSelectorModalProps {
   fieldDisplayName: string;
   options: string[];
   selectedOptions: { [option: string]: boolean };
-  onSave: (fieldName: string, selections: { [option: string]: boolean }) => void;
+  onSave: (
+    fieldName: string,
+    selections: { [option: string]: boolean },
+  ) => void;
   onClose: () => void;
 }
 

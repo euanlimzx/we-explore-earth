@@ -25,7 +25,7 @@ export async function createEvent(req: Request, res: Response) {
       !location ||
       !timeStart ||
       !timeEnd ||
-      !price ||
+      price == null ||
       !maxAttendees ||
       !rsvpDeadline ||
       !hostedBy ||
@@ -40,10 +40,13 @@ export async function createEvent(req: Request, res: Response) {
       location,
       timeStart: new Date(timeStart),
       timeEnd: new Date(timeEnd),
-      price: typeof price === 'string' ? parseInt(price, 10) : price,
+      price: typeof price === "string" ? parseInt(price, 10) : price,
       hostedBy,
       tags,
-      maxAttendees: typeof maxAttendees === 'string' ? parseInt(maxAttendees, 10) : maxAttendees,
+      maxAttendees:
+        typeof maxAttendees === "string"
+          ? parseInt(maxAttendees, 10)
+          : maxAttendees,
       rsvpDeadline: new Date(rsvpDeadline),
     };
 

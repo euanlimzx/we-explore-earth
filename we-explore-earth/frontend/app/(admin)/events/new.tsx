@@ -4,7 +4,9 @@ import EventForm from "@/components/events/EventForm";
 import { EventTagsConfig, EventTagsSelection } from "@shared/types/event";
 
 // Initialize tags selection with all options set to false
-const initializeTagsSelection = (config: EventTagsConfig): EventTagsSelection => {
+const initializeTagsSelection = (
+  config: EventTagsConfig,
+): EventTagsSelection => {
   const selection: EventTagsSelection = {};
   for (const [fieldName, options] of Object.entries(config)) {
     if (Array.isArray(options)) {
@@ -37,7 +39,8 @@ export default function NewEventPage() {
   const [location, setLocation] = useState("");
   const [price, setPrice] = useState("");
   const [hostedBy, setHostedBy] = useState("");
-  const [eventTagsConfig, setEventTagsConfig] = useState<EventTagsConfig | null>(null);
+  const [eventTagsConfig, setEventTagsConfig] =
+    useState<EventTagsConfig | null>(null);
   const [maxAttendees, setMaxAttendees] = useState("");
   const [tagsSelection, setTagsSelection] = useState<EventTagsSelection>({});
   const [rsvpDeadline, setRsvpDeadline] = useState(new Date());
@@ -71,7 +74,7 @@ export default function NewEventPage() {
             maxAttendees,
             rsvpDeadline: rsvpDeadline.toISOString(),
           }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -98,14 +101,14 @@ export default function NewEventPage() {
       if (eventTagsConfig) {
         setTagsSelection(initializeTagsSelection(eventTagsConfig));
       }
-      setMaxAttendees("")
-      setRsvpDeadline(now)
+      setMaxAttendees("");
+      setRsvpDeadline(now);
       setImageUri(null);
     } catch (error) {
       console.error("Error creating event:", error);
       Alert.alert(
         "Error",
-        error instanceof Error ? error.message : "Failed to create event"
+        error instanceof Error ? error.message : "Failed to create event",
       );
     }
   };
@@ -116,7 +119,7 @@ export default function NewEventPage() {
         `${process.env.EXPO_PUBLIC_API_URL}/config/categories`,
         {
           method: "GET",
-        }
+        },
       );
 
       if (!response.ok) {
@@ -124,7 +127,7 @@ export default function NewEventPage() {
         return;
       }
 
-      const config = await response.json() as EventTagsConfig;
+      const config = (await response.json()) as EventTagsConfig;
       setEventTagsConfig(config);
       setTagsSelection(initializeTagsSelection(config));
     } catch (e) {
