@@ -83,6 +83,22 @@ function EventFilters() {
         // const endDate = null;
     }
 
+    async function retrieveCategories() {
+        try {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/config/categories`, { method: 'GET' });
+            const data = await response.json();
+
+            if(!response.ok) {
+                throw new Error(data.error || "Failed to fetch categories");
+            }
+
+            setCategoryOptions(data);
+        }
+        catch (error: any) {
+            console.log(error instanceof Error ? error.message : "Failed to fetch categories");
+        }
+    }
+
     useEffect(() => {
         // initially, all date options are unselected
         const initSelectedDates : Record<string, boolean> = {};
@@ -91,13 +107,12 @@ function EventFilters() {
         });
         setSelectedDates(initSelectedDates);
         
-        // TODO: Grab categories from backend. Placeholder below.
-        const retrievedCategories = ['Category 1', 'Category 2'];
-        setCategoryOptions(retrievedCategories);
+        // grab categories from backend
+        retrieveCategories();
 
         // initially, all category options are unselected
         const initSelectedCategories : Record<string, boolean> = {};
-        retrievedCategories.forEach((category) => {
+        categoryOptions.forEach((category) => {
             initSelectedCategories[category] = false;
         });
         setSelectedCategories(initSelectedCategories);
