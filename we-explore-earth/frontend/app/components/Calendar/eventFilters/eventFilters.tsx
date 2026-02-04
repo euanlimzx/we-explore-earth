@@ -1,53 +1,81 @@
 import { useState, useEffect } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Checkbox } from 'expo-checkbox';
 import { styles } from './styles'
 
 function FilterHeader(
-    {header}
+    {
+        header,
+        selectedOptions,
+        setSelectedOptions,
+    }
     :
-    {header: String}
+    {
+        header: string,
+        selectedOptions: Record<string, boolean>,
+        setSelectedOptions: React.Dispatch<any>
+    }
 ){
+    const handleReset = () => {
+        const clearedSelections = Object.fromEntries(
+            Object.entries(selectedOptions).map(([key]) => [key, false])
+        );
+        setSelectedOptions(clearedSelections);
+    }
+
     return(
         <View style={styles.filterHeaderWrapper}>
             <Text style={styles.filterHeader}>{header}</Text>
-            <Text style={styles.reset}>Reset</Text>{/** TODO: Make reset button functional. */}
+            <TouchableOpacity onPress={handleReset}>
+                <Text style={styles.reset}>Reset</Text>
+            </TouchableOpacity>
         </View>
     )
 }
 
 function FilterOption(
-    {option}
+    {
+        option,
+        selectedOptions,
+        setSelectedOptions
+    }
     :
-    {option: String}
+    {
+        option: string,
+        selectedOptions: Record<string, boolean>,
+        setSelectedOptions: React.Dispatch<any>
+    }
 ){
+    const handleCheck = () => {
+        // handle unchecking the box
+        if(selectedOptions[option]) {
+            setSelectedOptions({...selectedOptions, [option]: false});
+        }
+        // handle checking the box
+        else {
+            setSelectedOptions({...selectedOptions, [option]: true});
+        }
+    }
+
     return(
         <View style={styles.filterOptionWrapper}>
             <Text style={styles.filterOption}>{option}</Text>
             <Checkbox
-                // TODO: Sync checkboxes with options to toggle between checked and unchecked.
-                // value={isChecked}
-                // onValueChange={setIsChecked}
-                // color={isChecked ? 'black' : 'mediumgrey'}
+                value={selectedOptions[option]}
+                onValueChange={handleCheck}
+                color={selectedOptions[option] ? 'black' : 'mediumgrey'}
             />
         </View>
     )
 }
 
 function EventFilters() {
-    const [dateOptions, setDateOptions] = useState<Array<String>>(['Today', 'Tomorrow', 'This Week']);
-    const [selectedDates, setSelectedDates] = useState<any>({
-        today: false,
-        tomorrow: false,
-        thisWeek: false
-    }); // TODO: Might change structure. Depends on use case.
+    const [dateOptions, _] = useState<Array<string>>(['Today', 'Tomorrow', 'This Week']);
+    const [selectedDates, setSelectedDates] = useState<Record<string, boolean>>({});
 
-    const [categoryOptions, setCategoryOptions] = useState<Array<String>>([]);
-    const [selectedCategories, setSelectedCategories] = useState<Set<String>>(new Set<String>()); // TODO: Might change structure. Depends on use case.
-
-    // TODO: For checkboxes
-    // const [isChecked, setIsChecked] = useState(false)
+    const [categoryOptions, setCategoryOptions] = useState<Array<string>>([]);
+    const [selectedCategories, setSelectedCategories] = useState<Record<string, boolean>>({});
 
     const handleSubmit = () => {
         // TODO
@@ -56,8 +84,23 @@ function EventFilters() {
     }
 
     useEffect(() => {
+        // initially, all date options are unselected
+        const initSelectedDates : Record<string, boolean> = {};
+        dateOptions.forEach((date) => {
+            initSelectedDates[date] = false;
+        });
+        setSelectedDates(initSelectedDates);
+        
         // TODO: Grab categories from backend. Placeholder below.
-        setCategoryOptions(['Category 1', 'Category 2']);
+        const retrievedCategories = ['Category 1', 'Category 2'];
+        setCategoryOptions(retrievedCategories);
+
+        // initially, all category options are unselected
+        const initSelectedCategories : Record<string, boolean> = {};
+        retrievedCategories.forEach((category) => {
+            initSelectedCategories[category] = false;
+        });
+        setSelectedCategories(initSelectedCategories);
     }, []);
 
     return(
@@ -66,17 +109,35 @@ function EventFilters() {
                 <Text style={styles.filterTitle}>Filter</Text>
                 {dateOptions && dateOptions.length >= 0 &&
                     <>
-                        <FilterHeader header='Date'/>
+                        <FilterHeader
+                            header='Date'
+                            selectedOptions={selectedDates}
+                            setSelectedOptions={setSelectedDates}
+                        />
                         {dateOptions.map((option, index) => 
-                            <FilterOption key={index} option={option}/>
+                            <FilterOption
+                                key={index}
+                                option={option}
+                                selectedOptions={selectedDates}
+                                setSelectedOptions={setSelectedDates}
+                            />
                         )}
                     </>
                 }
                 {categoryOptions && categoryOptions.length >= 0 &&
                     <>
-                        <FilterHeader header='Category'/>
+                        <FilterHeader
+                            header='Category'
+                            selectedOptions={selectedCategories}
+                            setSelectedOptions={setSelectedCategories}
+                        />
                         {categoryOptions.map((option, index) => 
-                            <FilterOption key={index} option={option}/>
+                            <FilterOption
+                                key={index}
+                                option={option}
+                                selectedOptions={selectedCategories}
+                                setSelectedOptions={setSelectedCategories}
+                            />
                         )}
                     </>
                 }
