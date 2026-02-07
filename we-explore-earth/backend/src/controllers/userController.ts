@@ -4,10 +4,54 @@ import admin from "firebase-admin";
 import { User, NewUser } from "@shared/types/user";
 import nodemailer from 'nodemailer';
 
+
+export interface UserEventWithStatus {
+  event: Record<string, unknown>;
+  status: string;
+}
+
+// GET /users/:id/events - get all events for a user
+export async function getUserEvents(req: Request, res: Response) {
+  try {
+    const userDoc = await db
+      .collection("users")
+      .doc(req.params.id as string)
+      .get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const userData = userDoc.data() as {
+      events?: { eventID: string; status: string }[];
+    };
+
+    const eventsList = userData.events ?? [];
+
+    const events = await Promise.all(
+      eventsList.map(async ({ eventID, status }) => {
+        const eventDoc = await db.collection("events").doc(eventID).get();
+        if (!eventDoc.exists) return null;
+
+        return {
+          id: eventDoc.id,
+          ...eventDoc.data(),
+          status,
+        };
+      })
+    );
+
+    return res.status(200).json(events.filter(Boolean));
+  } catch (error) {
+    console.error("Error fetching user events:", error);
+    return res.status(500).json({ error: "Failed to fetch user events" });
+  }
+}
+
 // GET /users/:id
 export async function getUser(req: Request, res: Response) {
   try {
-    const doc = await db.collection("users").doc(req.params.id).get();
+    const doc = await db.collection("users").doc(req.params.id as string).get();
 
     if (!doc.exists) return res.status(404).json({ error: "User not found" });
 
@@ -91,7 +135,7 @@ export async function updateUser(req: Request, res:Response) {
       return res.status(400).json({ error: "Missing required fields" });
     }
     
-    const userDocument = await db.collection("users").doc(id).get();
+    const userDocument = await db.collection("users").doc(id as string).get();
 
     if (!userDocument.exists) {
       return res.status(404).json({ error: "User not found" });
@@ -100,7 +144,7 @@ export async function updateUser(req: Request, res:Response) {
     const userData = userDocument.data() as NewUser;  
     if (notificationToken !== undefined) userData.notificationToken = notificationToken;
   
-    await db.collection("users").doc(id).set(userData);
+    await db.collection("users").doc(id as string).set(userData);
     
     res.json({ id: id, ...userData });
     
