@@ -47,7 +47,7 @@ export default function LoginPage() {
       dispatch(setUserState(data));
 
       console.log("Login successful");
-      router.replace("(admin)/home" as any);
+      router.replace("(onboarding)/discover" as any);
     } catch (error) {
       console.error("Login error:", error);
       Alert.alert(
