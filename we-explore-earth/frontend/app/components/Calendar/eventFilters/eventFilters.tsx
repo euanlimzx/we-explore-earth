@@ -71,16 +71,56 @@ function FilterOption(
 }
 
 function EventFilters() {
-    const [dateOptions, _] = useState<Array<string>>(['Today', 'Tomorrow', 'This Week']);
+    const [dateOptions, _] = useState<Array<string>>(['Today', 'Tomorrow', 'This Week', 'This Month']);
     const [selectedDates, setSelectedDates] = useState<Record<string, boolean>>({});
 
     const [categoryOptions, setCategoryOptions] = useState<Array<string>>([]);
     const [selectedCategories, setSelectedCategories] = useState<Record<string, boolean>>({});
 
     const handleSubmit = () => {
-        // TODO
-        // const startDate = null;
-        // const endDate = null;
+        // Compute start and end dates.
+        let startDate : Date | null = null;
+        let endDate : Date | null = null;
+        const today = new Date();
+        for (const [option, isSelected] of Object.entries(selectedDates)) {
+            if (!isSelected) {
+                continue;
+            }
+            let newStartDate : Date = new Date();
+            let newEndDate : Date = new Date();
+            switch (option) {
+                case 'Today':
+                    break;
+                case 'Tomorrow':
+                    newStartDate.setDate(today.getDate() + 1);
+                    newEndDate.setDate(today.getDate() + 1);
+                    break;
+                case 'This Week':
+                    const day = today.getDay();
+                    newStartDate.setDate(today.getDate() - day);    // Start of the week (Sunday)
+                    newEndDate.setDate(today.getDate() + (6-day));  // End of the week (Saturday)
+                    break;
+                case 'This Month':
+                    newStartDate.setDate(1);  // First day of the month
+                    const numberOfDays = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+                    newEndDate.setDate(numberOfDays); // Last day of the month
+                default:
+                    break;
+            }
+            startDate = startDate ? new Date(Math.min(startDate.getTime(), newStartDate!.getTime())) : newStartDate;
+            endDate = endDate ? new Date(Math.max(endDate.getTime(), newEndDate!.getTime())) : newEndDate;
+        }
+
+        console.log('start date', startDate?.toString());
+        console.log('end date:', endDate?.toString());
+        const cats = [];
+        for (const [option, isSelected] of Object.entries(selectedCategories)) {
+            if (isSelected){
+                cats.push(option);
+            }
+        }
+        console.log(cats);
+        // TODO: Pass the filter values (startDate, endDate, categories) to parent component.
     }
 
     async function retrieveCategories() {
@@ -156,6 +196,12 @@ function EventFilters() {
                         )}
                     </>
                 }
+                <TouchableOpacity
+                    style={styles.submit}
+                    onPress={handleSubmit}
+                >
+                    <Text style={styles.submitText}>Submit</Text>
+                </TouchableOpacity>
             </View>
         </SafeAreaView>
     );

@@ -31,4 +31,16 @@ export const styles = StyleSheet.create({
         fontWeight: 600, /** semi-bold */
         fontSize: 16,
     },
+    submit: {
+        marginTop: 24,
+        padding: 4,
+        borderRadius: 4,
+        backgroundColor: 'lightgrey',
+    },
+    submitText: {
+        textAlign: 'center',
+        fontWeight: 700, /** bold */
+        fontSize: 16,
+        color: '#3c3b3b',
+    },
 });
