@@ -2,6 +2,7 @@ import { db } from "../firestore";
 import { Request, Response } from "express";
 import admin from "firebase-admin";
 import { Event } from "../types/event";
+import { EventRSVP } from "@shared/types/event";
 
 // create event
 export async function createEvent(req: Request, res: Response) {
@@ -94,12 +95,13 @@ export async function addOrUpdateRSVP(req: Request, res: Response) {
     }
 
     const eventData = eventDoc.data()!;
-    const attendees = eventData.attendees || [];
-    const existingAttendeeIndex = attendees.findIndex((a: { userID: string }) => a.userID === userID);
+    const attendees: EventRSVP[] = eventData.attendees || [];
+    const existingAttendeeIndex = attendees.findIndex((a) => a.userID === userID);
     if (existingAttendeeIndex >= 0) {
       attendees[existingAttendeeIndex].status = status;
     } else {
-      attendees.push({ userID, status, checkedIn: false });
+      const newRSVP: EventRSVP = { userID, status, checkedIn: false };
+      attendees.push(newRSVP);
     }
 
     await eventRef.update({ attendees });
@@ -128,8 +130,8 @@ export async function removeRSVP(req: Request, res: Response) {
     }
 
     const eventData = eventDoc.data()!;
-    const attendees = (eventData.attendees || []).filter(
-      (a: { userID: string }) => a.userID !== userID
+    const attendees: EventRSVP[] = (eventData.attendees || []).filter(
+      (a: EventRSVP) => a.userID !== userID
     );
 
     await eventRef.update({ attendees });

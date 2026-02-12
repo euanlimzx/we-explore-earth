@@ -1,7 +1,7 @@
 import { db } from "../firestore";
 import { Request, Response } from "express";
 import admin from "firebase-admin";
-import { User, NewUser } from "@shared/types/user";
+import { User, NewUser, UserRSVP } from "@shared/types/user";
 import nodemailer from 'nodemailer';
 
 // GET /users/:id
@@ -232,12 +232,13 @@ export async function addOrUpdateUserRSVP(req: Request, res: Response) {
     }
 
     const userData = userDoc.data()!;
-    const userEvents = userData.events || [];
-    const existingEventIndex = userEvents.findIndex((e: { eventID: string }) => e.eventID === eventID);
+    const userEvents: UserRSVP[] = userData.events || [];
+    const existingEventIndex = userEvents.findIndex((e) => e.eventID === eventID);
     if (existingEventIndex >= 0) {
       userEvents[existingEventIndex].status = status;
     } else {
-      userEvents.push({ eventID, status });
+      const newRSVP: UserRSVP = { eventID, status };
+      userEvents.push(newRSVP);
     }
 
     await userRef.update({ events: userEvents });
@@ -267,8 +268,8 @@ export async function removeUserRSVP(req: Request, res: Response) {
     }
 
     const userData = userDoc.data()!;
-    const userEvents = (userData.events || []).filter(
-      (e: { eventID: string }) => e.eventID !== eventID
+    const userEvents: UserRSVP[] = (userData.events || []).filter(
+      (e: UserRSVP) => e.eventID !== eventID
     );
 
     await userRef.update({ events: userEvents });
@@ -292,19 +293,19 @@ export async function getUserRSVPs(req: Request, res: Response) {
     }
 
     const userData = userDoc.data()!;
-    const userEvents = userData.events || [];
+    const userEvents: UserRSVP[] = userData.events || [];
 
     if (userEvents.length === 0) {
       return res.json([]);
     }
 
-    const eventIds = userEvents.map((e: { eventID: string }) => e.eventID);
+    const eventIds = userEvents.map((e) => e.eventID);
     const eventsSnapshot = await db.collection("events")
       .where(admin.firestore.FieldPath.documentId(), 'in', eventIds)
       .get();
 
     const rsvps = eventsSnapshot.docs.map((doc) => {
-      const userRSVP = userEvents.find((e: { eventID: string }) => e.eventID === doc.id);
+      const userRSVP = userEvents.find((e) => e.eventID === doc.id);
       return {
         event: { id: doc.id, ...doc.data() },
         status: userRSVP?.status || null,
