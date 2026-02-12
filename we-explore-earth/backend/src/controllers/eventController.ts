@@ -99,7 +99,7 @@ export async function addOrUpdateRSVP(req: Request, res: Response) {
     if (existingAttendeeIndex >= 0) {
       attendees[existingAttendeeIndex].status = status;
     } else {
-      attendees.push({ userID, status });
+      attendees.push({ userID, status, checkedIn: false });
     }
 
     await eventRef.update({ attendees });

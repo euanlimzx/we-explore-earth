@@ -10,6 +10,7 @@ export type RSVPStatus = 'YES' | 'MAYBE';
 export interface EventRSVP {
     userID: string;
     status: RSVPStatus;
+    checkedIn: boolean;
 }
   
 export interface NewEvent {
