@@ -87,49 +87,27 @@ export async function addOrUpdateRSVP(req: Request, res: Response) {
     }
 
     const eventRef = db.collection("events").doc(eventId);
-    const userRef = db.collection("users").doc(userID);
+    const eventDoc = await eventRef.get();
 
-    await db.runTransaction(async (transaction) => {
-      const eventDoc = await transaction.get(eventRef);
-      const userDoc = await transaction.get(userRef);
-
-      if (!eventDoc.exists) {
-        throw new Error("Event not found");
-      }
-      if (!userDoc.exists) {
-        throw new Error("User not found");
-      }
-
-      const eventData = eventDoc.data()!;
-      const userData = userDoc.data()!;
-
-      const attendees = eventData.attendees || [];
-      const existingAttendeeIndex = attendees.findIndex((a: { userID: string }) => a.userID === userID);
-      if (existingAttendeeIndex >= 0) {
-        attendees[existingAttendeeIndex].status = status;
-      } else {
-        attendees.push({ userID, status });
-      }
-
-      const userEvents = userData.events || [];
-      const existingEventIndex = userEvents.findIndex((e: { eventID: string }) => e.eventID === eventId);
-      if (existingEventIndex >= 0) {
-        userEvents[existingEventIndex].status = status;
-      } else {
-        userEvents.push({ eventID: eventId, status });
-      }
-
-      transaction.update(eventRef, { attendees });
-      transaction.update(userRef, { events: userEvents });
-    });
-
-    return res.status(200).json({ message: "RSVP updated successfully" });
-  } catch (error: any) {
-    console.error("Error updating RSVP:", error);
-    if (error.message === "Event not found" || error.message === "User not found") {
-      return res.status(404).json({ error: error.message });
+    if (!eventDoc.exists) {
+      return res.status(404).json({ error: "Event not found" });
     }
-    return res.status(500).json({ error: "Failed to update RSVP" });
+
+    const eventData = eventDoc.data()!;
+    const attendees = eventData.attendees || [];
+    const existingAttendeeIndex = attendees.findIndex((a: { userID: string }) => a.userID === userID);
+    if (existingAttendeeIndex >= 0) {
+      attendees[existingAttendeeIndex].status = status;
+    } else {
+      attendees.push({ userID, status });
+    }
+
+    await eventRef.update({ attendees });
+
+    return res.status(200).json({ message: "Event RSVP updated successfully" });
+  } catch (error: any) {
+    console.error("Error updating event RSVP:", error);
+    return res.status(500).json({ error: "Failed to update event RSVP" });
   }
 }
 
@@ -143,40 +121,22 @@ export async function removeRSVP(req: Request, res: Response) {
     }
 
     const eventRef = db.collection("events").doc(eventId);
-    const userRef = db.collection("users").doc(userID);
+    const eventDoc = await eventRef.get();
 
-    await db.runTransaction(async (transaction) => {
-      const eventDoc = await transaction.get(eventRef);
-      const userDoc = await transaction.get(userRef);
-
-      if (!eventDoc.exists) {
-        throw new Error("Event not found");
-      }
-      if (!userDoc.exists) {
-        throw new Error("User not found");
-      }
-
-      const eventData = eventDoc.data()!;
-      const userData = userDoc.data()!;
-
-      const attendees = (eventData.attendees || []).filter(
-        (a: { userID: string }) => a.userID !== userID
-      );
-
-      const userEvents = (userData.events || []).filter(
-        (e: { eventID: string }) => e.eventID !== eventId
-      );
-
-      transaction.update(eventRef, { attendees });
-      transaction.update(userRef, { events: userEvents });
-    });
-
-    return res.status(200).json({ message: "RSVP removed successfully" });
-  } catch (error: any) {
-    console.error("Error removing RSVP:", error);
-    if (error.message === "Event not found" || error.message === "User not found") {
-      return res.status(404).json({ error: error.message });
+    if (!eventDoc.exists) {
+      return res.status(404).json({ error: "Event not found" });
     }
-    return res.status(500).json({ error: "Failed to remove RSVP" });
+
+    const eventData = eventDoc.data()!;
+    const attendees = (eventData.attendees || []).filter(
+      (a: { userID: string }) => a.userID !== userID
+    );
+
+    await eventRef.update({ attendees });
+
+    return res.status(200).json({ message: "Event RSVP removed successfully" });
+  } catch (error: any) {
+    console.error("Error removing event RSVP:", error);
+    return res.status(500).json({ error: "Failed to remove event RSVP" });
   }
 }

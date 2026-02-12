@@ -32,15 +32,21 @@ export default function RSVPModal({ visible, event, currentRSVP, onClose, onRSVP
     }
 
     try {
-      const res = await fetch(`${baseUrl}/events/${event.id}/rsvp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userID: userId, status }),
-      });
+      const [eventRes, userRes] = await Promise.all([
+        fetch(`${baseUrl}/events/${event.id}/rsvp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userID: userId, status }),
+        }),
+        fetch(`${baseUrl}/users/${userId}/rsvp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ eventID: event.id, status }),
+        }),
+      ]);
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        Alert.alert('Error', errorData.message || 'Failed to submit RSVP.');
+      if (!eventRes.ok || !userRes.ok) {
+        Alert.alert('Error', 'Failed to submit RSVP.');
         return;
       }
 
@@ -88,15 +94,21 @@ export default function RSVPModal({ visible, event, currentRSVP, onClose, onRSVP
     }
 
     try {
-      const res = await fetch(`${baseUrl}/events/${event.id}/rsvp`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userID: userId }),
-      });
+      const [eventRes, userRes] = await Promise.all([
+        fetch(`${baseUrl}/events/${event.id}/rsvp`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userID: userId }),
+        }),
+        fetch(`${baseUrl}/users/${userId}/rsvp`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ eventID: event.id }),
+        }),
+      ]);
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        Alert.alert('Error', errorData.message || 'Failed to remove RSVP.');
+      if (!eventRes.ok || !userRes.ok) {
+        Alert.alert('Error', 'Failed to remove RSVP.');
         return;
       }
 

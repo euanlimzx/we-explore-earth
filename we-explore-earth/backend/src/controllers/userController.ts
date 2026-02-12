@@ -210,6 +210,76 @@ export async function resetPassword(req: Request, res: Response) {
   }
 }
 
+// POST /users/:id/rsvp
+export async function addOrUpdateUserRSVP(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const { eventID, status } = req.body;
+
+    if (!eventID || !status) {
+      return res.status(400).json({ error: "eventID and status are required" });
+    }
+
+    if (status !== 'YES' && status !== 'MAYBE') {
+      return res.status(400).json({ error: "status must be 'YES' or 'MAYBE'" });
+    }
+
+    const userRef = db.collection("users").doc(id);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const userData = userDoc.data()!;
+    const userEvents = userData.events || [];
+    const existingEventIndex = userEvents.findIndex((e: { eventID: string }) => e.eventID === eventID);
+    if (existingEventIndex >= 0) {
+      userEvents[existingEventIndex].status = status;
+    } else {
+      userEvents.push({ eventID, status });
+    }
+
+    await userRef.update({ events: userEvents });
+
+    return res.status(200).json({ message: "User RSVP updated successfully" });
+  } catch (error: any) {
+    console.error("Error updating user RSVP:", error);
+    return res.status(500).json({ error: "Failed to update user RSVP" });
+  }
+}
+
+// DELETE /users/:id/rsvp
+export async function removeUserRSVP(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const { eventID } = req.body;
+
+    if (!eventID) {
+      return res.status(400).json({ error: "eventID is required" });
+    }
+
+    const userRef = db.collection("users").doc(id);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const userData = userDoc.data()!;
+    const userEvents = (userData.events || []).filter(
+      (e: { eventID: string }) => e.eventID !== eventID
+    );
+
+    await userRef.update({ events: userEvents });
+
+    return res.status(200).json({ message: "User RSVP removed successfully" });
+  } catch (error: any) {
+    console.error("Error removing user RSVP:", error);
+    return res.status(500).json({ error: "Failed to remove user RSVP" });
+  }
+}
+
 // GET /users/:id/rsvps
 export async function getUserRSVPs(req: Request, res: Response) {
   try {
