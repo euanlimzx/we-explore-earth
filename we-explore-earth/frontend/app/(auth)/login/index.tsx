@@ -23,45 +23,58 @@ export default function LoginPage() {
         Alert.alert("Please fill in all the fields");
         return;
       }
-
+    
       try {
-        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/users/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', },
-          body: JSON.stringify({
-              email,
-              password
-          })
-        });
-
+        const response = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/users/login`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+          }
+        );
+    
         const data = await response.json();
-
+    
         if (!response.ok) {
-          Alert.alert(
-            'Login Failed', 
-            data.error || 'An unknown error occurred'
-          );
-          throw new Error(data.error || 'Login failed');
+          throw new Error(data.error || "Login failed");
         }
-        
+    
         dispatch(setUserState(data));
-
-        console.log('Login successful');
-        if(data.isAdmin) {
+    
+        const isAdmin = await checkIsAdmin(email);
+    
+        if (isAdmin) {
           router.replace('/(admin)/home');
-        } else{
+        } else {
           router.replace('/(users)/home');
         }
-        
       } catch (error) {
-        console.error('Login error:', error);
+        console.error("Login error:", error);
         Alert.alert(
-          'Login Failed', 
-          error instanceof Error ? error.message : 'An unknown error occurred'
+          "Login Failed",
+          error instanceof Error ? error.message : "An unknown error occurred"
         );
       }
     }
     
+    async function checkIsAdmin(email: string): Promise<boolean> {
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/config/is-admin?email=${encodeURIComponent(email)}`,
+        {
+          method: 'GET',
+        }
+      );
+    
+      const data = await response.json();
+    
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to check admin status");
+      }
+    
+      return data.isAdminUser;
+    }
+
     async function handleForgotPassword() {
       router.push('/reset' as any);
     }
