@@ -15,7 +15,7 @@ export async function getAdmins(req: Request, res: Response) {
   }
 }
 
-export async function isAdminUser(req: Request, res: Response) {
+export async function isAdmin(req: Request, res: Response) {
   try {
     const { email } = req.query;
 
@@ -32,11 +32,11 @@ export async function isAdminUser(req: Request, res: Response) {
     }
 
     const admins: string[] = snap.data()?.admins ?? [];
-    const isAdmin = admins.includes(normalizedEmail);
+    const admin = admins.includes(normalizedEmail);
 
-    return res.status(200).json({ isAdminUser: isAdmin });
+    return res.status(200).json({ isAdmin: admin });
   } catch (err) {
-    console.error("isAdmin error:", err);
+    console.error("admin error:", err);
     return res.status(500).json({ error: "Server error" });
   }
 }
@@ -60,7 +60,7 @@ export async function addAdmin(req: Request, res: Response) {
 
     if (!snap.empty) {
       const userDocRef = snap.docs[0].ref;
-      await userDocRef.set({ isAdmin: true }, { merge: true });
+      await userDocRef.set({ admin: true }, { merge: true });
     }
 
     res.json({ success: true });
@@ -90,7 +90,7 @@ export async function removeAdmin(req: Request, res: Response) {
   
     if(!snap.empty){
       const userDocRef = snap.docs[0].ref;
-      await userDocRef.set({ isAdmin: false }, { merge: true });
+      await userDocRef.set({ admin: false }, { merge: true });
     }
 
     res.json({ success: true });

@@ -3,13 +3,13 @@ import {
   getAdmins,
   addAdmin,
   removeAdmin,
-  isAdminUser
+  isAdmin
 } from "../controllers/configController";
 
 const router = Router();
 
 router.get("/admins", getAdmins);
-router.get("/is-admin", isAdminUser);
+router.get("/is-admin", isAdmin);
 router.post("/admin", addAdmin);
 router.delete("/admin", removeAdmin);
 

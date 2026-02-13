@@ -42,9 +42,9 @@ export default function LoginPage() {
     
         dispatch(setUserState(data));
     
-        const isAdmin = await checkIsAdmin(email);
+        const admin = await checkIsAdmin(email);
     
-        if (isAdmin) {
+        if (admin) {
           router.replace('/(admin)/home');
         } else {
           router.replace('/(users)/home');
@@ -72,7 +72,7 @@ export default function LoginPage() {
         throw new Error(data.error || "Failed to check admin status");
       }
     
-      return data.isAdminUser;
+      return data.isAdmin;
     }
 
     async function handleForgotPassword() {

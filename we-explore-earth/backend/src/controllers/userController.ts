@@ -32,7 +32,7 @@ export async function signupUser(req: Request, res: Response) {
       .collection("admins")
       .doc(normalizedEmail)
       .get(); 
-    const isAdmin = adminDoc.exists;
+    const adminFlag = adminDoc.exists;
 
     
 
@@ -42,7 +42,7 @@ export async function signupUser(req: Request, res: Response) {
       password,
     });
 
-    await admin.auth().setCustomUserClaims(userRecord.uid, { admin: isAdmin });
+    await admin.auth().setCustomUserClaims(userRecord.uid, { admin: adminFlag });
 
     // Generate verification link
     const verificationLink = await admin.auth().generateEmailVerificationLink(email);
@@ -76,7 +76,7 @@ export async function signupUser(req: Request, res: Response) {
       firstName,
       lastName,
       notificationToken: null,
-      isAdmin,
+      admin: adminFlag,
     };
 
     //Part 3: POST user document to Firestore collection
@@ -85,7 +85,7 @@ export async function signupUser(req: Request, res: Response) {
     res.status(201).json({ 
       message: "User created successfully",
       uid: userRecord.uid,
-      isAdmin,
+      admin: adminFlag,
     });
 
   } catch (e: any) {
