@@ -35,7 +35,6 @@ export default function OnboardingPage({
           <Text style={styles.buttonText}>{buttonText}</Text>
         </TouchableOpacity>
         
-        <Text style={styles.skipText}>Skip for now</Text>
       </View>
     </View>
   );
@@ -54,7 +53,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 40,
+    marginTop: 60,
   },
   placeholderText: { color: '#888' },
   contentContainer: {
@@ -69,9 +68,8 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 80,
     borderRadius: 30,
-    marginTop: 10,
+    marginTop: 60,
   },
   buttonText: { fontSize: 16, fontWeight: '600' },
-  skipText: { color: '#888', marginTop: 10 }
 });
 
