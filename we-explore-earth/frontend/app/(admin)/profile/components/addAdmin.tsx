@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { styles } from "./addAdmin.styles";
 import {
   View,
   Text,
@@ -93,84 +94,60 @@ export default function AddAdmin() {
   };
 
   return (
-    <View style={{ padding: 16, gap: 12 }}>
-      <Text style={{ fontSize: 18, fontWeight: "600" }}>Add Admin</Text>
+  <View style={styles.container}>
+    <Text style={styles.sectionTitle}>Add Admin</Text>
 
-      <TextInput
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-        placeholder="admin@example.com"
-        style={{
-          borderWidth: 1,
-          borderColor: "#ccc",
-          borderRadius: 8,
-          padding: 10,
-        }}
-      />
+    <TextInput
+      value={email}
+      onChangeText={setEmail}
+      autoCapitalize="none"
+      keyboardType="email-address"
+      placeholder="admin@example.com"
+      style={styles.input}
+    />
 
-      <TouchableOpacity
-        onPress={handleAddAdmin}
-        disabled={loadingAdd}
-        style={{
-          backgroundColor: "#000",
-          paddingVertical: 12,
-          borderRadius: 10,
-          alignItems: "center",
-          opacity: loadingAdd ? 0.6 : 1,
-        }}
-      >
-        <Text style={{ color: "#fff", fontWeight: "600" }}>
-          {loadingAdd ? "Adding..." : "Add Admin"}
-        </Text>
-      </TouchableOpacity>
-
-
-      <Text style={{ fontSize: 18, fontWeight: "600", marginTop: 16 }}>
-        Current Admins
+    <TouchableOpacity
+      onPress={handleAddAdmin}
+      disabled={loadingAdd}
+      style={[
+        styles.button,
+        loadingAdd && styles.buttonDisabled,
+      ]}
+    >
+      <Text style={styles.buttonText}>
+        {loadingAdd ? "Adding..." : "Add Admin"}
       </Text>
+    </TouchableOpacity>
 
-      <TextInput
-        value={filter}
-        onChangeText={setFilter}
-        placeholder="Search admins…"
-        autoCapitalize="none"
-        style={{
-          borderWidth: 1,
-          borderColor: "#ccc",
-          borderRadius: 8,
-          padding: 10,
-        }}
+    <Text style={[styles.sectionTitle, styles.marginTop]}>
+      Current Admins
+    </Text>
+
+    <TextInput
+      value={filter}
+      onChangeText={setFilter}
+      placeholder="Search admins…"
+      autoCapitalize="none"
+      style={styles.input}
+    />
+
+    {loadingList ? (
+      <ActivityIndicator />
+    ) : (
+      <FlatList
+        data={filteredAdmins}
+        keyExtractor={(item) => item}
+        renderItem={({ item }) => (
+          <View style={styles.listItem}>
+            <Text>{item}</Text>
+
+            <TouchableOpacity onPress={() => removeAdmin(item)}>
+              <Text style={styles.removeText}>✕</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       />
-
-      {loadingList ? (
-        <ActivityIndicator />
-      ) : (
-        <FlatList
-          data={filteredAdmins}
-          keyExtractor={(item) => item}
-          renderItem={({ item }) => (
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: 12,
-                borderWidth: 1,
-                borderRadius: 10,
-                marginBottom: 8,
-              }}
-            >
-              <Text>{item}</Text>
-
-              <TouchableOpacity onPress={() => removeAdmin(item)}>
-                <Text style={{ color: "red", fontSize: 18 }}>✕</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        />
-      )}
-    </View>
-  );
+    )}
+  </View>
+);
 }
