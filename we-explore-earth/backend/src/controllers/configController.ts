@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import admin from "firebase-admin";
-import { updateDoc } from "firebase/firestore";
+// import { updateDoc } from "firebase/firestore";
 
 const db = admin.firestore();
 
