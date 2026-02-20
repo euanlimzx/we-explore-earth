@@ -1,13 +1,13 @@
 //STANDARD LIBRARY
 import React, { useState } from 'react';
 //THIRD-PARTY LIBRARIES
-import { View, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
-import { router } from 'expo-router';
+import { View, Text, TouchableOpacity, TextInput, Alert } from "react-native";
+import { router } from "expo-router";
 //LOCAL FILES
-import { styles } from './styles';
-import BackButton from '@/app/components/BackButton'
-import { useAppDispatch } from '@/app/redux/hooks';
-import { setUserState } from '@/app/redux/slices/userSlice';
+import { styles } from "./styles";
+import BackButton from "@/app/components/BackButton/backButton";
+import { useAppDispatch } from "@/app/redux/hooks";
+import { setUserState } from "@/app/redux/slices/userSlice";
 
 export default function LoginPage() {
     //REACT HOOKS
@@ -87,31 +87,34 @@ export default function LoginPage() {
         <View style={styles.container}>
             <Text style={styles.title}>Welcome to We Explore Earth</Text>
 
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-            />
-            
-            <TextInput
-                style={styles.input}
-                placeholder="Password"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-            />
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
 
-            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-                <Text style={styles.buttonText}>LOGIN</Text>
-            </TouchableOpacity>
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
 
-            <TouchableOpacity style={styles.forgotPasswordButton} onPress={handleForgotPassword}>
-                <Text style={styles.buttonText}>Forgot you password?</Text>
-            </TouchableOpacity>
-        </View>
-      </>
-    );
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+          <Text style={styles.buttonText}>LOGIN</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.forgotPasswordButton}
+          onPress={handleForgotPassword}
+        >
+          <Text style={styles.buttonText}>Forgot you password?</Text>
+        </TouchableOpacity>
+      </View>
+    </>
+  );
 }

@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getUser,
+  updateUser,
   signupUser,
   loginUser,
   resetPassword
@@ -10,6 +11,9 @@ const router = express.Router();
 
 // GET /users/:id
 router.get("/:id", getUser);
+
+// PATCH /users/:id
+router.patch("/:id", updateUser);
 
 // POST /users/signup
 router.post("/signup", signupUser);

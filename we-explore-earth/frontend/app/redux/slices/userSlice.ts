@@ -1,15 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { PayloadAction } from '@reduxjs/toolkit';
-
-interface User {
-    id: string;
-    username: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    notificationToken: string | null;
-    isAdmin: boolean;
-}
+import { User } from '@shared/types/user';
 
 type UserState = User | null;
 
@@ -23,10 +14,21 @@ const userSlice = createSlice({
       
         clearUserState: () => {
             return null;  
-        },
+        }, 
+
+        updateUserState: (state, action: PayloadAction<User>) => {
+            if (state) {
+                return {
+                    ...state,
+                    ...action.payload
+                };
+            }
+            return state;
+        }
     },
 });
 
-export const { setUserState, clearUserState } = userSlice.actions;
+export const { setUserState, clearUserState, updateUserState } = userSlice.actions;
 export const userReducer = userSlice.reducer;
+
 

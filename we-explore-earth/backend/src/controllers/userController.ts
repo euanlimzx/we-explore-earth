@@ -1,7 +1,7 @@
 import { db } from "../firestore";
 import { Request, Response } from "express";
 import admin from "firebase-admin";
-import { User } from "../types/user";
+import { User, NewUser } from "@shared/types/user";
 import nodemailer from 'nodemailer';
 
 // GET /users/:id
@@ -70,13 +70,14 @@ export async function signupUser(req: Request, res: Response) {
     });
       
     //Part 2: Create user document
-    const userData: User = {
+    const userData: NewUser = {
       username,
       email,
       firstName,
       lastName,
       notificationToken: null,
-      admin: adminFlag,
+      isAdmin: adminFlag,
+      events: []
     };
 
     //Part 3: POST user document to Firestore collection
@@ -92,6 +93,34 @@ export async function signupUser(req: Request, res: Response) {
     res.status(500).json({ error: e.message });
   }
 };
+
+// PATCH /users/:id/
+export async function updateUser(req: Request, res:Response) {
+  try {
+    const { id } = req.params;
+    const { username, email, firstName, lastName, notificationToken, isAdmin } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    
+    const userDocument = await db.collection("users").doc(id).get();
+
+    if (!userDocument.exists) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const userData = userDocument.data() as NewUser;  
+    if (notificationToken !== undefined) userData.notificationToken = notificationToken;
+  
+    await db.collection("users").doc(id).set(userData);
+    
+    res.json({ id: id, ...userData });
+    
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+}
 
 // POST /users/login
 export async function loginUser(req: Request, res: Response) {
