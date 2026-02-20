@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { TagsSectionProps, EventTagsSelection } from "@shared/types/event";
-import TagSelectorModal from "./TagSelectorModal";
+import { TagSelectorModal } from "./TagSelectorModal";
 import { styles } from "./styles";
 
-export default function TagsSection({
+export function TagsSection({
   eventTagsConfig,
   tagsSelection,
   onTagsChange,

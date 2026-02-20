@@ -9,7 +9,7 @@ import {
 import { TagSelectorModalProps } from "@shared/types/event";
 import { styles } from "./styles";
 
-export default function TagSelectorModal({
+export function TagSelectorModal({
   visible,
   fieldName,
   fieldDisplayName,

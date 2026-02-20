@@ -14,7 +14,7 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 import { styles } from "./styles";
 import { EventTagsConfig, EventTagsSelection } from "@shared/types/event";
-import TagsSection from "./TagsSection";
+import { TagsSection } from "./TagsSection";
 import * as ImagePicker from 'expo-image-picker';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 // import { storage } from "@/firebase.config";
@@ -52,7 +52,7 @@ interface EventFormProps {
   formTitle: string;
 }
 
-export default function EventForm({
+export function EventForm({
   title,
   setTitle,
   description,

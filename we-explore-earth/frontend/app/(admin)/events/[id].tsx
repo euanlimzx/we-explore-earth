@@ -1,11 +1,8 @@
 import { useState, useEffect } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Alert, View, Text, ActivityIndicator } from "react-native";
-import EventForm from "@/components/events/EventForm";
-import {
-  EventTagsConfig,
-  EventTagsSelection,
-} from "@shared/types/event";
+import { EventForm } from "./components/EventForm";
+import { EventTagsConfig, EventTagsSelection } from "@shared/types/event";
 import {
   initializeTagsSelection,
   combineDateAndTime,
@@ -156,7 +153,11 @@ export default function EventFormPage() {
         return;
       }
 
-      const config = (await response.json()) as EventTagsConfig;
+      const raw = await response.json();
+      //assume it is a flat array todo @euan to change in the future
+      const config: EventTagsConfig = Array.isArray(raw)
+        ? { Category: raw }
+        : (raw as EventTagsConfig);
       setEventTagsConfig(config);
       if (isCreate) {
         setTagsSelection(initializeTagsSelection(config));
@@ -211,7 +212,10 @@ export default function EventFormPage() {
         }
 
         Alert.alert("Success", "Event created successfully!", [
-          { text: "OK", onPress: () => router.replace("/(admin)/home" as const) },
+          {
+            text: "OK",
+            onPress: () => router.replace("/(admin)/home" as const),
+          },
         ]);
 
         const now = new Date();
@@ -248,14 +252,24 @@ export default function EventFormPage() {
         }
 
         Alert.alert("Success", "Event updated successfully!", [
-          { text: "OK", onPress: () => router.replace("/(admin)/home" as const) },
+          {
+            text: "OK",
+            onPress: () => router.replace("/(admin)/home" as const),
+          },
         ]);
       }
     } catch (error) {
-      console.error(isCreate ? "Error creating event:" : "Error updating event:", error);
+      console.error(
+        isCreate ? "Error creating event:" : "Error updating event:",
+        error,
+      );
       Alert.alert(
         "Error",
-        error instanceof Error ? error.message : (isCreate ? "Failed to create event" : "Failed to update event"),
+        error instanceof Error
+          ? error.message
+          : isCreate
+            ? "Failed to create event"
+            : "Failed to update event",
       );
     }
   };
