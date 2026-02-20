@@ -21,24 +21,22 @@ export async function getConfig(req: Request, res: Response) {
   }
 }
 
-// GET /categories - Get event tags config (categories)
+// GET /config/categories - Get all categories (for Filter Form component)
 export async function getCategories(req: Request, res: Response) {
   try {
-    const sharedDoc = await db.collection("config").doc("shared").get();
-
-    if (!sharedDoc.exists) {
-      return res.status(404).json({ error: "Shared config document not found" });
+    const snapshot = await db.collection("config").doc("shared").get();
+    if (!snapshot.exists) {
+      return res.status(404).json({ error: "No config found" });
     }
 
-    const data = sharedDoc.data();
-    if (!data) {
-      return res.status(404).json({ error: "Shared config data is empty" });
+    const categories = snapshot.data()?.category;
+    if(!categories) {
+      return res.status(404).json({ error: "No categories found" });
     }
-
-    // Return only the EventTagsConfig (document data without the id field)
-    res.json(data);
-  } catch (e: any) {
-    console.error("Error fetching categories:", e);
-    res.status(500).json({ error: e.message || "Failed to fetch categories" });
+    
+    return res.json(categories);
+  }
+  catch (e: any) {
+    return res.status(500).json({ error: e.message });
   }
 }
