@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity } from 'react-native';
+import { useRouter, useSegments } from 'expo-router';
 import { styles } from './styles';
 import type { Event } from '@shared/types/event';
 
@@ -14,6 +15,17 @@ const formatTimestamp = (ts: { _seconds: number; _nanoseconds: number }) => {
 };
 
 export default function EventDetails({ visible, event, onClose }: Props) {
+  const router = useRouter();
+  const segments = useSegments();
+  const isAdmin = segments[0] === '(admin)';
+
+  const handleEdit = () => {
+    if (event?.id) {
+      onClose();
+      router.push(`/(admin)/events/${event.id}` as const);
+    }
+  };
+
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.backdrop}>
@@ -30,6 +42,11 @@ export default function EventDetails({ visible, event, onClose }: Props) {
             <Text style={styles.title}>No event selected.</Text>
           )}
 
+          {isAdmin && event && (
+            <TouchableOpacity onPress={handleEdit} style={styles.closeButton}>
+              <Text style={styles.closeText}>Edit</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Text style={styles.closeText}>Close</Text>
           </TouchableOpacity>

@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Alert, View, Text, ActivityIndicator } from "react-native";
 import EventForm from "@/components/events/EventForm";
 import {
   EventTagsConfig,
   EventTagsSelection,
-  Event,
 } from "@shared/types/event";
 import {
   initializeTagsSelection,
@@ -12,9 +12,11 @@ import {
   timestampToDate,
 } from "@/utils/eventUtils";
 
-export default function EditEventPage() {
-  // Hardcoded event ID as specified
-  const EVENT_ID = "xfoYNIRL86Ziv0S8R6St";
+export default function EventFormPage() {
+  const router = useRouter();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const isCreate = id === "new" || !id;
+  const eventId = isCreate ? null : (id as string);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -31,17 +33,40 @@ export default function EditEventPage() {
   const [tagsSelection, setTagsSelection] = useState<EventTagsSelection>({});
   const [rsvpDeadline, setRsvpDeadline] = useState(new Date());
   const [imageUri, setImageUri] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!isCreate);
 
-  // Fetch event on mount
+  // Reset form when navigating to create (e.g. from navbar) so we don't keep edit data
   useEffect(() => {
+    if (id === "new" || !id) {
+      const now = new Date();
+      setTitle("");
+      setDescription("");
+      setLocation("");
+      setHostedBy("");
+      setDateStart(now);
+      setTimeStart(now);
+      setDateEnd(now);
+      setTimeEnd(now);
+      setPrice("");
+      setMaxAttendees("");
+      setRsvpDeadline(now);
+      setImageUri(null);
+      setLoading(false);
+      if (eventTagsConfig) {
+        setTagsSelection(initializeTagsSelection(eventTagsConfig));
+      }
+    }
+  }, [id]);
+
+  // Fetch event when editing
+  useEffect(() => {
+    if (isCreate || !eventId) return;
+
     const fetchEvent = async () => {
       try {
         const response = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/events/${EVENT_ID}`,
-          {
-            method: "GET",
-          },
+          `${process.env.EXPO_PUBLIC_API_URL}/events/${eventId}`,
+          { method: "GET" },
         );
 
         if (!response.ok) {
@@ -56,14 +81,12 @@ export default function EditEventPage() {
 
         const event: any = await response.json();
 
-        // Validate that we have basic event data
         if (!event || (!event.title && !event.id)) {
           Alert.alert("Error", "Invalid event data received");
           setLoading(false);
           return;
         }
 
-        // Validate all required fields - throw error if missing
         const missingFields: string[] = [];
         if (!event.timeStart) missingFields.push("timeStart");
         if (!event.timeEnd) missingFields.push("timeEnd");
@@ -79,24 +102,20 @@ export default function EditEventPage() {
           return;
         }
 
-        // Convert FirestoreTimestamp to Date
         const timeStartDate = timestampToDate(event.timeStart);
         const timeEndDate = timestampToDate(event.timeEnd);
         const rsvpDeadlineDate = timestampToDate(event.rsvpDeadline);
 
-        // Split date and time for start
         const startDate = new Date(timeStartDate);
         startDate.setHours(0, 0, 0, 0);
         const startTime = new Date(timeStartDate);
         startTime.setFullYear(1970, 0, 1);
 
-        // Split date and time for end
         const endDate = new Date(timeEndDate);
         endDate.setHours(0, 0, 0, 0);
         const endTime = new Date(timeEndDate);
         endTime.setFullYear(1970, 0, 1);
 
-        // Pre-fill form fields with defaults if missing
         setTitle(event.title || "");
         setDescription(event.description || "");
         setLocation(event.location || "");
@@ -111,77 +130,25 @@ export default function EditEventPage() {
         );
         setRsvpDeadline(rsvpDeadlineDate);
         setTagsSelection(event.tags || {});
-
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching event:", error);
         Alert.alert(
           "Error",
           error instanceof Error ? error.message : "Failed to fetch event",
         );
+      } finally {
         setLoading(false);
       }
     };
 
     fetchEvent();
-  }, []);
-
-  const handleSubmit = async () => {
-    if (!title || !description || !location) {
-      Alert.alert("Error", "Please fill in all fields");
-      return;
-    }
-
-    try {
-      // Combine date and time for start and end
-      const combinedTimeStart = combineDateAndTime(dateStart, timeStart);
-      const combinedTimeEnd = combineDateAndTime(dateEnd, timeEnd);
-
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/events/${EVENT_ID}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            title,
-            description,
-            location,
-            timeStart: combinedTimeStart.toISOString(),
-            timeEnd: combinedTimeEnd.toISOString(),
-            price,
-            hostedBy,
-            tags: tagsSelection,
-            maxAttendees,
-            rsvpDeadline: rsvpDeadline.toISOString(),
-          }),
-        },
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        Alert.alert("Error", data.error || "Failed to update event");
-        return;
-      }
-
-      Alert.alert("Success", "Event updated successfully!");
-      // User stays on edit page as specified
-    } catch (error) {
-      console.error("Error updating event:", error);
-      Alert.alert(
-        "Error",
-        error instanceof Error ? error.message : "Failed to update event",
-      );
-    }
-  };
+  }, [eventId, isCreate]);
 
   const getEventTagsConfig = async () => {
     try {
       const response = await fetch(
         `${process.env.EXPO_PUBLIC_API_URL}/config/categories`,
-        {
-          method: "GET",
-        },
+        { method: "GET" },
       );
 
       if (!response.ok) {
@@ -191,10 +158,10 @@ export default function EditEventPage() {
 
       const config = (await response.json()) as EventTagsConfig;
       setEventTagsConfig(config);
-      // Only initialize if tagsSelection is empty (not pre-filled from event)
-      if (Object.keys(tagsSelection).length === 0) {
+      if (isCreate) {
         setTagsSelection(initializeTagsSelection(config));
       }
+      // In edit mode, tagsSelection is set when the event is fetched
     } catch (e) {
       console.error("Unable to get event tags config", e);
     }
@@ -204,7 +171,96 @@ export default function EditEventPage() {
     getEventTagsConfig();
   }, []);
 
-  if (loading) {
+  const handleSubmit = async () => {
+    if (!title || !description || !location) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+
+    const combinedTimeStart = combineDateAndTime(dateStart, timeStart);
+    const combinedTimeEnd = combineDateAndTime(dateEnd, timeEnd);
+    const payload = {
+      title,
+      description,
+      location,
+      timeStart: combinedTimeStart.toISOString(),
+      timeEnd: combinedTimeEnd.toISOString(),
+      price,
+      hostedBy,
+      tags: tagsSelection,
+      maxAttendees,
+      rsvpDeadline: rsvpDeadline.toISOString(),
+    };
+
+    try {
+      if (isCreate) {
+        const response = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/events/create`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          },
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          Alert.alert("Error", data.error || "Failed to create event");
+          return;
+        }
+
+        Alert.alert("Success", "Event created successfully!", [
+          { text: "OK", onPress: () => router.replace("/(admin)/home" as const) },
+        ]);
+
+        const now = new Date();
+        setTitle("");
+        setDescription("");
+        setLocation("");
+        setHostedBy("");
+        setDateStart(now);
+        setTimeStart(now);
+        setDateEnd(now);
+        setTimeEnd(now);
+        setPrice("");
+        if (eventTagsConfig) {
+          setTagsSelection(initializeTagsSelection(eventTagsConfig));
+        }
+        setMaxAttendees("");
+        setRsvpDeadline(now);
+        setImageUri(null);
+      } else if (eventId) {
+        const response = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/events/${eventId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          },
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          Alert.alert("Error", data.error || "Failed to update event");
+          return;
+        }
+
+        Alert.alert("Success", "Event updated successfully!", [
+          { text: "OK", onPress: () => router.replace("/(admin)/home" as const) },
+        ]);
+      }
+    } catch (error) {
+      console.error(isCreate ? "Error creating event:" : "Error updating event:", error);
+      Alert.alert(
+        "Error",
+        error instanceof Error ? error.message : (isCreate ? "Failed to create event" : "Failed to update event"),
+      );
+    }
+  };
+
+  if (!isCreate && loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" />
@@ -243,8 +299,8 @@ export default function EditEventPage() {
       imageUri={imageUri}
       setImageUri={setImageUri}
       onSubmit={handleSubmit}
-      submitButtonText="Update Event"
-      formTitle="Edit Event"
+      submitButtonText={isCreate ? "Create Event" : "Update Event"}
+      formTitle={isCreate ? "Create New Event" : "Edit Event"}
     />
   );
 }
