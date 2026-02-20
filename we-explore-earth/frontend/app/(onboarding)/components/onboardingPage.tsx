@@ -74,3 +74,4 @@ const styles = StyleSheet.create({
   buttonText: { fontSize: 16, fontWeight: '600' },
   skipText: { color: '#888', marginTop: 10 }
 });
+
