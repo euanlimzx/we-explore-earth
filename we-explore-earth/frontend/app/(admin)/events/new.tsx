@@ -1,33 +1,13 @@
 import { useState, useEffect } from "react";
 import { Alert } from "react-native";
-import EventForm from "./EventForm";
-import { EventTagsConfig, EventTagsSelection } from "../../../types/eventTags";
+import EventForm from "@/components/events/EventForm";
+import { EventTagsConfig, EventTagsSelection } from "@shared/types/event";
+import {
+  initializeTagsSelection,
+  combineDateAndTime,
+} from "@/utils/eventUtils";
 
-// Initialize tags selection with all options set to false
-const initializeTagsSelection = (config: EventTagsConfig): EventTagsSelection => {
-  const selection: EventTagsSelection = {};
-  for (const [fieldName, options] of Object.entries(config)) {
-    if (Array.isArray(options)) {
-      selection[fieldName] = {};
-      for (const option of options) {
-        selection[fieldName][option] = false;
-      }
-    }
-  }
-  return selection;
-};
-
-// Helper function to combine date and time into a Date object
-const combineDateAndTime = (date: Date, time: Date): Date => {
-  const combined = new Date(date);
-  combined.setHours(time.getHours());
-  combined.setMinutes(time.getMinutes());
-  combined.setSeconds(time.getSeconds());
-  combined.setMilliseconds(time.getMilliseconds());
-  return combined;
-};
-
-export default function CreateEvent() {
+export default function NewEventPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dateStart, setDateStart] = useState(new Date());
@@ -37,7 +17,8 @@ export default function CreateEvent() {
   const [location, setLocation] = useState("");
   const [price, setPrice] = useState("");
   const [hostedBy, setHostedBy] = useState("");
-  const [eventTagsConfig, setEventTagsConfig] = useState<EventTagsConfig | null>(null);
+  const [eventTagsConfig, setEventTagsConfig] =
+    useState<EventTagsConfig | null>(null);
   const [maxAttendees, setMaxAttendees] = useState("");
   const [tagsSelection, setTagsSelection] = useState<EventTagsSelection>({});
   const [rsvpDeadline, setRsvpDeadline] = useState(new Date());
@@ -71,7 +52,7 @@ export default function CreateEvent() {
             maxAttendees,
             rsvpDeadline: rsvpDeadline.toISOString(),
           }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -98,14 +79,14 @@ export default function CreateEvent() {
       if (eventTagsConfig) {
         setTagsSelection(initializeTagsSelection(eventTagsConfig));
       }
-      setMaxAttendees("")
-      setRsvpDeadline(now)
+      setMaxAttendees("");
+      setRsvpDeadline(now);
       setImageUri(null);
     } catch (error) {
       console.error("Error creating event:", error);
       Alert.alert(
         "Error",
-        error instanceof Error ? error.message : "Failed to create event"
+        error instanceof Error ? error.message : "Failed to create event",
       );
     }
   };
@@ -113,10 +94,10 @@ export default function CreateEvent() {
   const getEventTagsConfig = async () => {
     try {
       const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/config`,
+        `${process.env.EXPO_PUBLIC_API_URL}/config/categories`,
         {
           method: "GET",
-        }
+        },
       );
 
       if (!response.ok) {
@@ -124,14 +105,9 @@ export default function CreateEvent() {
         return;
       }
 
-      const data = await response.json();
-      // Find the event_tags document by id
-      const eventTagsDoc = data.find((doc: { id: string }) => doc.id === "event_tags");
-      if (eventTagsDoc) {
-        const { id, ...config } = eventTagsDoc;
-        setEventTagsConfig(config as EventTagsConfig);
-        setTagsSelection(initializeTagsSelection(config as EventTagsConfig));
-      }
+      const config = (await response.json()) as EventTagsConfig;
+      setEventTagsConfig(config);
+      setTagsSelection(initializeTagsSelection(config));
     } catch (e) {
       console.error("Unable to get event tags config", e);
     }
