@@ -18,5 +18,4 @@ router.delete("/admin", removeAdmin);
 router.get("/", getConfig);
 router.get("/categories", getCategories);
 
-
 export default router;

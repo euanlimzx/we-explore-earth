@@ -137,4 +137,3 @@ export async function getCategories(req: Request, res: Response) {
     return res.status(500).json({ error: e.message });
   }
 }
-
