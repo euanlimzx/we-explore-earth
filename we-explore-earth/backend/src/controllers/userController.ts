@@ -26,11 +26,23 @@ export async function signupUser(req: Request, res: Response) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    const normalizedEmail = String(email).trim().toLowerCase();
+
+    const adminDoc = await db
+      .collection("admins")
+      .doc(normalizedEmail)
+      .get(); 
+    const adminFlag = adminDoc.exists;
+
+    
+
     //Part 1: Validate the user using firebase Auth + Send email verification link
     const userRecord = await admin.auth().createUser({
-      email,
+      email: normalizedEmail,
       password,
     });
+
+    await admin.auth().setCustomUserClaims(userRecord.uid, { admin: adminFlag });
 
     // Generate verification link
     const verificationLink = await admin.auth().generateEmailVerificationLink(email);
@@ -64,7 +76,7 @@ export async function signupUser(req: Request, res: Response) {
       firstName,
       lastName,
       notificationToken: null,
-      isAdmin: false,
+      isAdmin: adminFlag,
       events: []
     };
 
@@ -73,7 +85,8 @@ export async function signupUser(req: Request, res: Response) {
 
     res.status(201).json({ 
       message: "User created successfully",
-      uid: userRecord.uid 
+      uid: userRecord.uid,
+      admin: adminFlag,
     });
 
   } catch (e: any) {

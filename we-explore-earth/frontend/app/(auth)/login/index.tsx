@@ -1,5 +1,5 @@
 //STANDARD LIBRARY
-import { useState } from "react";
+import React, { useState } from 'react';
 //THIRD-PARTY LIBRARIES
 import { View, Text, TouchableOpacity, TextInput, Alert } from "react-native";
 import { router } from "expo-router";
@@ -10,64 +10,82 @@ import { useAppDispatch } from "@/app/redux/hooks";
 import { setUserState } from "@/app/redux/slices/userSlice";
 
 export default function LoginPage() {
-  //REACT HOOKS
-
-  //STATE VARIABLES
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const dispatch = useAppDispatch();
-
-  //HANDLERS
-  async function handleLogin() {
-    if (!email || !password) {
-      Alert.alert("Please fill in all the fields");
-      return;
+    //REACT HOOKS
+    
+    //STATE VARIABLES
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const dispatch = useAppDispatch();
+    
+    //HANDLERS
+    async function handleLogin() {
+      if (!email || !password) {
+        Alert.alert("Please fill in all the fields");
+        return;
+      }
+    
+      try {
+        const response = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/users/login`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+          }
+        );
+    
+        const data = await response.json();
+    
+        if (!response.ok) {
+          throw new Error(data.error || "Login failed");
+        }
+    
+        dispatch(setUserState(data));
+    
+        const admin = await checkIsAdmin(email);
+    
+        if (admin) {
+          router.replace('/(admin)/home');
+        } else {
+          router.replace('/(users)/home');
+        }
+      } catch (error) {
+        console.error("Login error:", error);
+        Alert.alert(
+          "Login Failed",
+          error instanceof Error ? error.message : "An unknown error occurred"
+        );
+      }
     }
-
-    try {
+    
+    async function checkIsAdmin(email: string): Promise<boolean> {
       const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/users/login`,
+        `${process.env.EXPO_PUBLIC_API_URL}/config/is-admin?email=${encodeURIComponent(email)}`,
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
+          method: 'GET',
         }
       );
-
+    
       const data = await response.json();
-
+    
       if (!response.ok) {
-        Alert.alert("Login Failed", data.error || "An unknown error occurred");
-        throw new Error(data.error || "Login failed");
+        throw new Error(data.error || "Failed to check admin status");
       }
-
-      dispatch(setUserState(data));
-
-      console.log("Login successful");
-      router.replace("(admin)/home" as any);
-    } catch (error) {
-      console.error("Login error:", error);
-      Alert.alert(
-        "Login Failed",
-        error instanceof Error ? error.message : "An unknown error occurred"
-      );
+    
+      return data.isAdmin;
     }
-  }
 
-  async function handleForgotPassword() {
-    router.push("/reset" as any);
-  }
-  //EFFECTS
-
-  //RENDER
-  return (
-    <>
-      <BackButton route="/launch" />
-      <View style={styles.container}>
-        <Text style={styles.title}>Welcome to We Explore Earth</Text>
+    async function handleForgotPassword() {
+      router.push('/reset' as any);
+    }
+    //EFFECTS
+    
+    //RENDER
+    return (
+      <>
+        <BackButton route="/launch" />
+        <View style={styles.container}>
+            <Text style={styles.title}>Welcome to We Explore Earth</Text>
 
         <TextInput
           style={styles.input}

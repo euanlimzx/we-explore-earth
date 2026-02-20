@@ -24,12 +24,38 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="explore/index"
+          name="events/index"
           options={{
             title: 'Explore',
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
           }}
         />
+        <Tabs.Screen
+        name="events/new"
+        options={{
+          title: "New Event",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="calendar" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="events/[id]/edit"
+        options={{
+          title: "Edit Event",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="calendar" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+          name="profile/index"
+          options={{
+            title: 'Profile',
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          }}
+      />
+        
       </Tabs>
     );
 }

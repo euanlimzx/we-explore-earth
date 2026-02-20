@@ -1,5 +1,13 @@
-import CreateEvent from "@/components/home/createEvent";
+import { View, Text } from 'react-native';
 
 export default function EventsPage() {
-  return <CreateEvent />;
+  return (
+    <View style={{ 
+      flex: 1, 
+      justifyContent: "center", 
+      alignItems: "center" 
+    }}>
+      <Text>This should display a list of events</Text>
+    </View>
+  );
 }
