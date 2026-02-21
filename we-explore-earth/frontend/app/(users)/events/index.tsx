@@ -16,9 +16,9 @@ import {
 import { useUser } from '../../../hooks/useUser';
 import EventView from '../../components/Calendar/eventView/eventView';
 import EventDetails from '../../components/Calendar/eventDetails/eventDetails';
-import type { Event } from '@shared/types/event';
+import type { Event, EventWithStatus } from '@shared/types/event';
+import { styles } from './styles';
 
-type EventWithStatus = Event & { status?: string };
 type Filter = 'All' | 'Yes' | 'Maybe';
 
 export default function MyEventsScreen() {
@@ -90,32 +90,30 @@ export default function MyEventsScreen() {
 
   if (!userId) {
     return (
-      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <SafeAreaView style={styles.screenCenter}>
         <Text>Sign in to see your events.</Text>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-      <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 16 }}>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        <Text style={styles.title}>
           Your Events
         </Text>
 
-        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
+        <View style={styles.filterRow}>
           {(['All', 'Yes', 'Maybe'] as const).map((f) => (
             <TouchableOpacity
               key={f}
               onPress={() => setFilter(f)}
-              style={{
-                paddingVertical: 8,
-                paddingHorizontal: 16,
-                borderRadius: 8,
-                backgroundColor: filter === f ? '#2196F3' : '#eee',
-              }}
+              style={[
+                styles.filterButton,
+                filter === f ? styles.filterButtonActive : styles.filterButtonInactive,
+              ]}
             >
-              <Text style={{ color: filter === f ? '#fff' : '#333' }}>
+              <Text style={filter === f ? styles.filterTextActive : styles.filterTextInactive}>
                 {f}
               </Text>
             </TouchableOpacity>
@@ -123,7 +121,7 @@ export default function MyEventsScreen() {
         </View>
 
         {loading ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" />
           </View>
         ) : (
