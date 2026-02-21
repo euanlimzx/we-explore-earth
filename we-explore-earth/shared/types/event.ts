@@ -36,6 +36,9 @@ export interface Event {
   rsvpDeadline: FirestoreTimestamp;
 }
 
+// Event with optional user RSVP status (e.g. from GET /users/:id/events)
+export type EventWithStatus = Event & { status?: string };
+
 // Event data for creating/updating events (uses Date/ISO strings)
 export interface CreateEventPayload {
   title: string;
