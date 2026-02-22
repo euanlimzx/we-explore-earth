@@ -4,9 +4,12 @@ export interface FirestoreTimestamp {
   _nanoseconds: number;
 }
 
+export type RSVPStatus = 'YES' | 'MAYBE';
+
 export interface EventRSVP {
   userID: string;
-  status: string;
+  status: RSVPStatus;
+  checkedIn: boolean;
 }
 
 // Config structure received from API (event_tags document)

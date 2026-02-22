@@ -1,6 +1,9 @@
 import express from "express";
 import {
   getUser,
+  getUserRSVPs,
+  addOrUpdateUserRSVP,
+  removeUserRSVP,
   updateUser,
   signupUser,
   loginUser,
@@ -8,6 +11,15 @@ import {
 } from "../controllers/userController";
 
 const router = express.Router();
+
+// GET /users/:id/rsvps - must be before /:id to avoid conflict
+router.get("/:id/rsvps", getUserRSVPs);
+
+// POST /users/:id/rsvp
+router.post("/:id/rsvp", addOrUpdateUserRSVP);
+
+// DELETE /users/:id/rsvp
+router.delete("/:id/rsvp", removeUserRSVP);
 
 // GET /users/:id
 router.get("/:id", getUser);
