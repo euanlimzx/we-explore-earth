@@ -1,8 +1,21 @@
-import express from "express";
-import { getConfig } from "../controllers/configController";
+import { Router } from "express";
+import {
+  getAdmins,
+  addAdmin,
+  removeAdmin,
+  isAdmin,
+  getConfig,
+  getCategories,
+} from "../controllers/configController";
 
-const router = express.Router();
+const router = Router();
+
+router.get("/admins", getAdmins);
+router.get("/is-admin", isAdmin);
+router.post("/admin", addAdmin);
+router.delete("/admin", removeAdmin);
 
 router.get("/", getConfig);
+router.get("/categories", getCategories);
 
 export default router;
