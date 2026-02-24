@@ -1,7 +1,13 @@
 {
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
+    "expo": "^54.0.33",
+    "i": "^0.3.7",
     "firebase": "^12.7.0",
     "react-redux": "^9.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "~19.1.10",
+    "typescript": "~5.9.2"
   }
 }
