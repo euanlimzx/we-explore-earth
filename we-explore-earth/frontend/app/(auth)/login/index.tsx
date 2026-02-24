@@ -65,24 +65,13 @@ export default function LoginPage() {
           method: 'GET',
         }
       );
-    
+
       const data = await response.json();
-    
+
       if (!response.ok) {
         throw new Error(data.error || "Failed to check admin status");
       }
 
-      dispatch(setUserState(data));
-
-      console.log("Login successful");
-      router.replace("(onboarding)/discover" as any);
-    } catch (error) {
-      console.error("Login error:", error);
-      Alert.alert(
-        "Login Failed",
-        error instanceof Error ? error.message : "An unknown error occurred"
-      );
-    
       return data.isAdmin;
     }
 
