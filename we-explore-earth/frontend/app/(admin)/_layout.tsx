@@ -2,6 +2,7 @@ import { Tabs, useRouter, usePathname } from "expo-router";
 import React from "react";
 import { Alert } from "react-native";
 
+import { EventFormDirtyProvider, useEventFormDirty } from "./EventFormDirtyContext";
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/theme";
@@ -14,14 +15,20 @@ function ConfirmLeaveEventFormTabButton(
   props: React.ComponentProps<typeof HapticTab>,
 ) {
   const pathname = usePathname();
+  const { isEventFormDirty } = useEventFormDirty();
   const isOnEventForm =
     typeof pathname === "string" && pathname.includes("/events/");
+  const isOnNewEvent =
+    typeof pathname === "string" && pathname.includes("/events/new");
+  const shouldConfirm =
+    isOnEventForm &&
+    (isOnNewEvent ? isEventFormDirty : true);
 
   return (
     <HapticTab
       {...props}
       onPress={(e) => {
-        if (isOnEventForm) {
+        if (shouldConfirm) {
           Alert.alert(
             "Leave event?",
             "Your changes have not been saved. Are you sure you want to go back?",
@@ -60,7 +67,8 @@ export default function AdminLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <Tabs
+    <EventFormDirtyProvider>
+      <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: false,
@@ -88,5 +96,6 @@ export default function AdminLayout() {
         }}
       />
     </Tabs>
+    </EventFormDirtyProvider>
   );
 }

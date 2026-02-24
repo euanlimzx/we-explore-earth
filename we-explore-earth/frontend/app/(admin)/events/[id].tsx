@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
 import { Alert, View, Text, ActivityIndicator } from "react-native";
+import { useEventFormDirty } from "../EventFormDirtyContext";
 import { EventForm } from "./components/EventForm";
 import { EventTagsConfig, EventTagsSelection } from "@shared/types/event";
 import {
@@ -12,6 +13,7 @@ import {
 export default function EventFormPage() {
   const router = useRouter();
   const navigation = useNavigation();
+  const { setEventFormDirty, isEventFormDirty } = useEventFormDirty();
   const { id } = useLocalSearchParams<{ id: string }>();
   const isCreate = id === "new" || !id;
   const eventId = isCreate ? null : (id as string);
@@ -33,9 +35,24 @@ export default function EventFormPage() {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(!isCreate);
 
+  const markDirty = useCallback(() => {
+    if (isCreate) setEventFormDirty(true);
+  }, [isCreate, setEventFormDirty]);
+
+  const withDirty = useCallback(
+    <T,>(setter: (value: T) => void) =>
+      (value: T) => {
+        setter(value);
+        markDirty();
+      },
+    [markDirty],
+  );
+
   // Confirm before leaving when navigation removes this screen (e.g. Android back button)
   useEffect(() => {
     const unsubscribe = navigation.addListener("beforeRemove", (e) => {
+      const shouldConfirm = !isCreate || isEventFormDirty;
+      if (!shouldConfirm) return;
       e.preventDefault();
       Alert.alert(
         "Leave event?",
@@ -51,11 +68,12 @@ export default function EventFormPage() {
       );
     });
     return unsubscribe;
-  }, [navigation]);
+  }, [navigation, isCreate, isEventFormDirty]);
 
   // Reset form when navigating to create (e.g. from navbar) so we don't keep edit data
   useEffect(() => {
     if (id === "new" || !id) {
+      setEventFormDirty(false);
       const now = new Date();
       setTitle("");
       setDescription("");
@@ -74,7 +92,7 @@ export default function EventFormPage() {
         setTagsSelection(initializeTagsSelection(eventTagsConfig));
       }
     }
-  }, [id]);
+  }, [id, setEventFormDirty]);
 
   // Fetch event when editing
   useEffect(() => {
@@ -232,6 +250,7 @@ export default function EventFormPage() {
           return;
         }
 
+        setEventFormDirty(false);
         Alert.alert("Success", "Event created successfully!", [
           {
             text: "OK",
@@ -272,6 +291,7 @@ export default function EventFormPage() {
           return;
         }
 
+        setEventFormDirty(false);
         Alert.alert("Success", "Event updated successfully!", [
           {
             text: "OK",
@@ -307,32 +327,32 @@ export default function EventFormPage() {
   return (
     <EventForm
       title={title}
-      setTitle={setTitle}
+      setTitle={withDirty(setTitle)}
       description={description}
-      setDescription={setDescription}
+      setDescription={withDirty(setDescription)}
       location={location}
-      setLocation={setLocation}
+      setLocation={withDirty(setLocation)}
       dateStart={dateStart}
-      setDateStart={setDateStart}
+      setDateStart={withDirty(setDateStart)}
       timeStart={timeStart}
-      setTimeStart={setTimeStart}
+      setTimeStart={withDirty(setTimeStart)}
       dateEnd={dateEnd}
-      setDateEnd={setDateEnd}
+      setDateEnd={withDirty(setDateEnd)}
       timeEnd={timeEnd}
-      setTimeEnd={setTimeEnd}
+      setTimeEnd={withDirty(setTimeEnd)}
       eventTagsConfig={eventTagsConfig}
       tagsSelection={tagsSelection}
-      onTagsChange={setTagsSelection}
+      onTagsChange={withDirty(setTagsSelection)}
       price={price}
-      setPrice={setPrice}
+      setPrice={withDirty(setPrice)}
       hostedBy={hostedBy}
-      setHostedBy={setHostedBy}
+      setHostedBy={withDirty(setHostedBy)}
       maxAttendees={maxAttendees}
-      setMaxAttendees={setMaxAttendees}
+      setMaxAttendees={withDirty(setMaxAttendees)}
       rsvpDeadline={rsvpDeadline}
-      setRsvpDeadline={setRsvpDeadline}
+      setRsvpDeadline={withDirty(setRsvpDeadline)}
       imageUri={imageUri}
-      setImageUri={setImageUri}
+      setImageUri={withDirty(setImageUri)}
       onSubmit={handleSubmit}
       submitButtonText={isCreate ? "Create Event" : "Update Event"}
       formTitle={isCreate ? "Create New Event" : "Edit Event"}
