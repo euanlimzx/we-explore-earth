@@ -4,12 +4,6 @@ import admin from "firebase-admin";
 import { User, NewUser } from "@shared/types/user";
 import nodemailer from 'nodemailer';
 
-
-export interface UserEventWithStatus {
-  event: Record<string, unknown>;
-  status: string;
-}
-
 // GET /users/:id/events - get all events for a user
 export async function getUserEvents(req: Request, res: Response) {
   try {
@@ -45,43 +39,6 @@ export async function getUserEvents(req: Request, res: Response) {
   } catch (error) {
     console.error("Error fetching user events:", error);
     return res.status(500).json({ error: "Failed to fetch user events" });
-  }
-}
-
-// POST /users/:id/rsvp
-export async function rsvpToEvent(req: Request, res: Response) {
-  try {
-    const userId = req.params.id as string;
-    const { eventId, status } = req.body as { eventId: string; status: "YES" | "MAYBE" };
-
-    if (!eventId || !status) {
-      return res.status(400).json({ error: "Missing eventId or status" });
-    }
-
-    if (status !== "YES" && status !== "MAYBE") {
-      return res.status(400).json({ error: "Invalid status" });
-    }
-
-    const userRef = db.collection("users").doc(userId);
-    const userDoc = await userRef.get();
-
-    if (!userDoc.exists) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    const userData = userDoc.data() as { events?: { eventID: string; status: string }[] };
-    const current = userData.events ?? [];
-
-    // replace existing RSVP for this event if it exists
-    const updated = current.filter((e) => e.eventID !== eventId);
-    updated.push({ eventID: eventId, status });
-
-    await userRef.update({ events: updated });
-
-    return res.json({ message: "RSVP updated", eventId, status });
-  } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : "Unknown error";
-    return res.status(500).json({ error: message });
   }
 }
 

@@ -5,17 +5,13 @@ import {
   updateUser,
   signupUser,
   loginUser,
-  resetPassword, 
-  rsvpToEvent
+  resetPassword,
 } from "../controllers/userController";
 
 const router = express.Router();
 
-// GET /users/:id/events 
+// GET /users/:id/events
 router.get("/:id/events", getUserEvents);
-
-// POST /users/:id/rsvp
-router.post("/:id/rsvp", rsvpToEvent);
 
 // GET /users/:id
 router.get("/:id", getUser);
