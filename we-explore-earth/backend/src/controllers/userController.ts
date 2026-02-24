@@ -28,11 +28,16 @@ export async function signupUser(req: Request, res: Response) {
 
     const normalizedEmail = String(email).trim().toLowerCase();
 
-    const adminDoc = await db
-      .collection("admins")
-      .doc(normalizedEmail)
-      .get(); 
-    const adminFlag = adminDoc.exists;
+    const configSnap = await db.doc("config/shared").get();
+
+    if (!configSnap.exists) {
+      return res.status(500).json({ error: "Config not found" });
+    }
+    
+    const admins: string[] = configSnap.data()?.admins ?? [];
+    
+    const isAdmin = admins.includes(normalizedEmail);
+    
 
     
 
@@ -42,7 +47,7 @@ export async function signupUser(req: Request, res: Response) {
       password,
     });
 
-    await admin.auth().setCustomUserClaims(userRecord.uid, { admin: adminFlag });
+    await admin.auth().setCustomUserClaims(userRecord.uid, { admin: isAdmin });
 
     // Generate verification link
     const verificationLink = await admin.auth().generateEmailVerificationLink(email);
@@ -76,7 +81,7 @@ export async function signupUser(req: Request, res: Response) {
       firstName,
       lastName,
       notificationToken: null,
-      isAdmin: adminFlag,
+      isAdmin: isAdmin,
       events: []
     };
 
@@ -86,7 +91,7 @@ export async function signupUser(req: Request, res: Response) {
     res.status(201).json({ 
       message: "User created successfully",
       uid: userRecord.uid,
-      admin: adminFlag,
+      admin: isAdmin,
     });
 
   } catch (e: any) {
