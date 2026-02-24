@@ -1,5 +1,6 @@
-import { Tabs, useRouter } from "expo-router";
+import { Tabs, useRouter, usePathname } from "expo-router";
 import React from "react";
+import { Alert } from "react-native";
 
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -7,6 +8,39 @@ import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
 const NEW_EVENT_HREF = "/(admin)/events/new";
+
+/** Use for any tab that should confirm before leaving the event form (new/edit). */
+function ConfirmLeaveEventFormTabButton(
+  props: React.ComponentProps<typeof HapticTab>,
+) {
+  const pathname = usePathname();
+  const isOnEventForm =
+    typeof pathname === "string" && pathname.includes("/events/");
+
+  return (
+    <HapticTab
+      {...props}
+      onPress={(e) => {
+        if (isOnEventForm) {
+          Alert.alert(
+            "Leave event?",
+            "Your changes have not been saved. Are you sure you want to go back?",
+            [
+              { text: "Stay", style: "cancel", onPress: () => {} },
+              {
+                text: "Leave",
+                style: "destructive",
+                onPress: () => props.onPress?.(e),
+              },
+            ]
+          );
+        } else {
+          props.onPress?.(e);
+        }
+      }}
+    />
+  );
+}
 
 function NewEventTabButton(
   props: React.ComponentProps<typeof HapticTab>,
@@ -30,7 +64,8 @@ export default function AdminLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: false,
-        tabBarButton: HapticTab,
+        // Default for all tabs: confirm before leaving event form. Override only for the Events tab.
+        tabBarButton: ConfirmLeaveEventFormTabButton,
       }}
     >
       <Tabs.Screen

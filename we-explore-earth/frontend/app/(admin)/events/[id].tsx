@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
 import { Alert, View, Text, ActivityIndicator } from "react-native";
 import { EventForm } from "./components/EventForm";
 import { EventTagsConfig, EventTagsSelection } from "@shared/types/event";
@@ -11,6 +11,7 @@ import {
 
 export default function EventFormPage() {
   const router = useRouter();
+  const navigation = useNavigation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const isCreate = id === "new" || !id;
   const eventId = isCreate ? null : (id as string);
@@ -31,6 +32,26 @@ export default function EventFormPage() {
   const [rsvpDeadline, setRsvpDeadline] = useState(new Date());
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(!isCreate);
+
+  // Confirm before leaving when navigation removes this screen (e.g. Android back button)
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("beforeRemove", (e) => {
+      e.preventDefault();
+      Alert.alert(
+        "Leave event?",
+        "Your changes have not been saved. Are you sure you want to go back?",
+        [
+          { text: "Stay", style: "cancel", onPress: () => {} },
+          {
+            text: "Leave",
+            style: "destructive",
+            onPress: () => navigation.dispatch(e.data.action),
+          },
+        ]
+      );
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   // Reset form when navigating to create (e.g. from navbar) so we don't keep edit data
   useEffect(() => {
