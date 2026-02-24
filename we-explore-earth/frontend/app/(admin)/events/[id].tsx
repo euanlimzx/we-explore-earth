@@ -70,6 +70,31 @@ export default function EventFormPage() {
     return unsubscribe;
   }, [navigation, isCreate, isEventFormDirty]);
 
+  // When user navigates away (e.g. taps another tab), reset form to blank so they get a fresh form when they return
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      setEventFormDirty(false);
+      const now = new Date();
+      setTitle("");
+      setDescription("");
+      setLocation("");
+      setHostedBy("");
+      setDateStart(now);
+      setTimeStart(now);
+      setDateEnd(now);
+      setTimeEnd(now);
+      setPrice("");
+      setMaxAttendees("");
+      setRsvpDeadline(now);
+      setImageUri(null);
+      setLoading(false);
+      if (eventTagsConfig) {
+        setTagsSelection(initializeTagsSelection(eventTagsConfig));
+      }
+    });
+    return unsubscribe;
+  }, [navigation, setEventFormDirty, eventTagsConfig]);
+
   // Reset form when navigating to create (e.g. from navbar) so we don't keep edit data
   useEffect(() => {
     if (id === "new" || !id) {
