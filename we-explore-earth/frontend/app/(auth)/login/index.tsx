@@ -44,11 +44,12 @@ export default function LoginPage() {
     
         const admin = await checkIsAdmin(email);
     
-        if (admin) {
-          router.replace('/(admin)/home');
-        } else {
-          router.replace('/(users)/home');
-        }
+        // if (admin) {
+        //   router.replace('/(admin)/home');
+        // } else {
+        //   router.replace('/(users)/home');
+        // }
+        router.replace('/(onboarding)/discover')
       } catch (error) {
         console.error("Login error:", error);
         Alert.alert(
