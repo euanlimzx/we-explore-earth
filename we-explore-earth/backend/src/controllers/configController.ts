@@ -60,7 +60,7 @@ export async function addAdmin(req: Request, res: Response) {
 
     if (!snap.empty) {
       const userDocRef = snap.docs[0].ref;
-      await userDocRef.set({ admin: true }, { merge: true });
+      await userDocRef.set({ isAdmin: true }, { merge: true });
     }
 
     res.json({ success: true });
@@ -90,7 +90,7 @@ export async function removeAdmin(req: Request, res: Response) {
   
     if(!snap.empty){
       const userDocRef = snap.docs[0].ref;
-      await userDocRef.set({ admin: false }, { merge: true });
+      await userDocRef.set({ isAdmin: false }, { merge: true });
     }
 
     res.json({ success: true });
