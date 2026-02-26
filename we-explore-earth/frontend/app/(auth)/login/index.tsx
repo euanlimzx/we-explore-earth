@@ -35,21 +35,20 @@ export default function LoginPage() {
         );
     
         const data = await response.json();
-    
+        
         if (!response.ok) {
           throw new Error(data.error || "Login failed");
         }
     
         dispatch(setUserState(data));
     
-        const admin = await checkIsAdmin(email);
-    
-        // if (admin) {
-        //   router.replace('/(admin)/home');
-        // } else {
-        //   router.replace('/(users)/home');
-        // }
-        router.replace('/(onboarding)/discover')
+        if (data.isAdmin) {
+          router.replace('/(admin)/home');
+        } else {
+          router.replace('/(users)/home');
+        }
+
+        //router.replace('/(onboarding)/discover')
       } catch (error) {
         console.error("Login error:", error);
         Alert.alert(
@@ -57,23 +56,6 @@ export default function LoginPage() {
           error instanceof Error ? error.message : "An unknown error occurred"
         );
       }
-    }
-    
-    async function checkIsAdmin(email: string): Promise<boolean> {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/config/is-admin?email=${encodeURIComponent(email)}`,
-        {
-          method: 'GET',
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to check admin status");
-      }
-
-      return data.isAdmin;
     }
 
     async function handleForgotPassword() {

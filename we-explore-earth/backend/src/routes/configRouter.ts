@@ -11,11 +11,9 @@ import {
 const router = Router();
 
 router.get("/admins", getAdmins);
-router.get("/is-admin", isAdmin);
 router.post("/admin", addAdmin);
 router.delete("/admin", removeAdmin);
 
-router.get("/", getConfig);
 router.get("/categories", getCategories);
 
 export default router;

@@ -26,10 +26,11 @@ export interface Event {
   location: string;
   timeStart: FirestoreTimestamp;
   timeEnd: FirestoreTimestamp;
+  category: string[];
+  accommodation: string[];
   price: number;
-  hostedBy: string;
   maxAttendees: number;
-  rsvpDeadline: FirestoreTimestamp;
+  attendees: EventRSVP[];
 }
 
 // Event data for writing to Firestore (uses Date - Firestore converts to FirestoreTimestamp)
@@ -39,8 +40,9 @@ export interface FirestoreEventData {
   location: string;
   timeStart: Date;
   timeEnd: Date;
+  category: string[];
+  accommodation: string[];
   price: number;
-  hostedBy: string;
   maxAttendees: number;
-  rsvpDeadline: Date;
+  attendees: EventRSVP[];
 }

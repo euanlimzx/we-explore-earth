@@ -15,31 +15,6 @@ export async function getAdmins(req: Request, res: Response) {
   }
 }
 
-export async function isAdmin(req: Request, res: Response) {
-  try {
-    const { email } = req.query;
-
-    if (!email) {
-      return res.status(400).json({ error: "Email is required" });
-    }
-
-    const normalizedEmail = String(email).toLowerCase();
-
-    const snap = await db.doc("config/shared").get();
-
-    if (!snap.exists) {
-      return res.status(500).json({ error: "Config not found" });
-    }
-
-    const admins: string[] = snap.data()?.admins ?? [];
-    const admin = admins.includes(normalizedEmail);
-
-    return res.status(200).json({ isAdmin: admin });
-  } catch (err) {
-    console.error("admin error:", err);
-    return res.status(500).json({ error: "Server error" });
-  }
-}
 
 export async function addAdmin(req: Request, res: Response) {
   const { email } = req.body;
@@ -96,25 +71,6 @@ export async function removeAdmin(req: Request, res: Response) {
     res.json({ success: true });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
-  }
-}
-
-export async function getConfig(req: Request, res: Response) {
-  try {
-    const snapshot = await db.collection("config").get();
-
-    if (snapshot.empty) {
-      return res.status(404).json({ error: "No config found" });
-    }
-
-    const configs = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
-    res.json(configs);
-  } catch (e: any) {
-    res.status(500).json({ error: e.message });
   }
 }
 
