@@ -1,13 +1,51 @@
 import { db } from "../firestore";
 import { Request, Response } from "express";
 import admin from "firebase-admin";
-import { User, NewUser } from "@shared/types/user";
+import { User, NewUser, UserRSVP } from "@shared/types/user";
 import nodemailer from 'nodemailer';
+
+// GET /users/:id/events - get all events for a user
+export async function getUserEvents(req: Request, res: Response) {
+  try {
+    const userDoc = await db
+      .collection("users")
+      .doc(req.params.id as string)
+      .get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const userData = userDoc.data() as {
+      events?: { eventID: string; status: string }[];
+    };
+
+    const eventsList = userData.events ?? [];
+
+    const events = await Promise.all(
+      eventsList.map(async ({ eventID, status }) => {
+        const eventDoc = await db.collection("events").doc(eventID).get();
+        if (!eventDoc.exists) return null;
+
+        return {
+          id: eventDoc.id,
+          ...eventDoc.data(),
+          status,
+        };
+      })
+    );
+
+    return res.status(200).json(events.filter(Boolean));
+  } catch (error) {
+    console.error("Error fetching user events:", error);
+    return res.status(500).json({ error: "Failed to fetch user events" });
+  }
+}
 
 // GET /users/:id
 export async function getUser(req: Request, res: Response) {
   try {
-    const doc = await db.collection("users").doc(req.params.id).get();
+    const doc = await db.collection("users").doc(req.params.id as string).get();
 
     if (!doc.exists) return res.status(404).json({ error: "User not found" });
 
@@ -26,11 +64,28 @@ export async function signupUser(req: Request, res: Response) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    const normalizedEmail = String(email).trim().toLowerCase();
+
+    const configSnap = await db.doc("config/shared").get();
+
+    if (!configSnap.exists) {
+      return res.status(500).json({ error: "Config not found" });
+    }
+    
+    const admins: string[] = configSnap.data()?.admins ?? [];
+    
+    const isAdmin = admins.includes(normalizedEmail);
+    
+
+    
+
     //Part 1: Validate the user using firebase Auth + Send email verification link
     const userRecord = await admin.auth().createUser({
-      email,
+      email: normalizedEmail,
       password,
     });
+
+    await admin.auth().setCustomUserClaims(userRecord.uid, { admin: isAdmin });
 
     // Generate verification link
     const verificationLink = await admin.auth().generateEmailVerificationLink(email);
@@ -64,7 +119,7 @@ export async function signupUser(req: Request, res: Response) {
       firstName,
       lastName,
       notificationToken: null,
-      isAdmin: false,
+      isAdmin: isAdmin,
       events: []
     };
 
@@ -73,7 +128,8 @@ export async function signupUser(req: Request, res: Response) {
 
     res.status(201).json({ 
       message: "User created successfully",
-      uid: userRecord.uid 
+      uid: userRecord.uid,
+      admin: isAdmin,
     });
 
   } catch (e: any) {
@@ -91,7 +147,7 @@ export async function updateUser(req: Request, res:Response) {
       return res.status(400).json({ error: "Missing required fields" });
     }
     
-    const userDocument = await db.collection("users").doc(id).get();
+    const userDocument = await db.collection("users").doc(id as string).get();
 
     if (!userDocument.exists) {
       return res.status(404).json({ error: "User not found" });
@@ -100,7 +156,7 @@ export async function updateUser(req: Request, res:Response) {
     const userData = userDocument.data() as NewUser;  
     if (notificationToken !== undefined) userData.notificationToken = notificationToken;
   
-    await db.collection("users").doc(id).set(userData);
+    await db.collection("users").doc(id as string).set(userData);
     
     res.json({ id: id, ...userData });
     
@@ -206,6 +262,115 @@ export async function resetPassword(req: Request, res: Response) {
 
     res.json({ message: "Password reset email sent" });
   } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+}
+
+// POST /users/:id/rsvp
+export async function addOrUpdateUserRSVP(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const { eventID, status } = req.body;
+
+    if (!eventID || !status) {
+      return res.status(400).json({ error: "eventID and status are required" });
+    }
+
+    if (status !== 'YES' && status !== 'MAYBE') {
+      return res.status(400).json({ error: "status must be 'YES' or 'MAYBE'" });
+    }
+
+    const userRef = db.collection("users").doc(id as any);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const userData = userDoc.data()!;
+    const userEvents: UserRSVP[] = userData.events || [];
+    const existingEventIndex = userEvents.findIndex((e) => e.eventID === eventID);
+    if (existingEventIndex >= 0) {
+      userEvents[existingEventIndex].status = status;
+    } else {
+      const newRSVP: UserRSVP = { eventID, status };
+      userEvents.push(newRSVP);
+    }
+
+    await userRef.update({ events: userEvents });
+
+    return res.status(200).json({ message: "User RSVP updated successfully" });
+  } catch (error: any) {
+    console.error("Error updating user RSVP:", error);
+    return res.status(500).json({ error: "Failed to update user RSVP" });
+  }
+}
+
+// DELETE /users/:id/rsvp
+export async function removeUserRSVP(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const { eventID } = req.body;
+
+    if (!eventID) {
+      return res.status(400).json({ error: "eventID is required" });
+    }
+
+    const userRef = db.collection("users").doc(id as any);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const userData = userDoc.data()!;
+    const userEvents: UserRSVP[] = (userData.events || []).filter(
+      (e: UserRSVP) => e.eventID !== eventID
+    );
+
+    await userRef.update({ events: userEvents });
+
+    return res.status(200).json({ message: "User RSVP removed successfully" });
+  } catch (error: any) {
+    console.error("Error removing user RSVP:", error);
+    return res.status(500).json({ error: "Failed to remove user RSVP" });
+  }
+}
+
+// GET /users/:id/rsvps
+export async function getUserRSVPs(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+
+    const userDoc = await db.collection("users").doc(id as any).get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const userData = userDoc.data()!;
+    const userEvents: UserRSVP[] = userData.events || [];
+
+    if (userEvents.length === 0) {
+      return res.json([]);
+    }
+
+    const eventIds = userEvents.map((e) => e.eventID);
+    const eventsSnapshot = await db.collection("events")
+      .where(admin.firestore.FieldPath.documentId(), 'in', eventIds)
+      .get();
+
+    const rsvps = eventsSnapshot.docs.map((doc) => {
+      const userRSVP = userEvents.find((e) => e.eventID === doc.id);
+      return {
+        event: { id: doc.id, ...doc.data() },
+        status: userRSVP?.status || null,
+      };
+    });
+
+    res.json(rsvps);
+  } catch (e: any) {
+    console.error("Error fetching user RSVPs:", e);
     res.status(500).json({ error: e.message });
   }
 }

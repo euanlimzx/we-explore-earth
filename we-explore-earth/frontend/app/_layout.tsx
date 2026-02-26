@@ -13,6 +13,7 @@ export default function RootLayout() {
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(users)" />
         <Stack.Screen name="(admin)" />
+        <Stack.Screen name="(onboarding)" />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
     </Provider>

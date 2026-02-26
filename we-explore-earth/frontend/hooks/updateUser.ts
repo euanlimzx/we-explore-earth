@@ -1,6 +1,6 @@
 import { useAppDispatch } from '@/app/redux/hooks';
 import { updateUserState } from '@/app/redux/slices/userSlice';
-import { User } from '@/app/types/user';
+import { User } from '@shared/types/user';
 
 export const useUpdateUser = () => {
   const dispatch = useAppDispatch();

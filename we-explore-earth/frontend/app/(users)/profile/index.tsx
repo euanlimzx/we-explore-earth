@@ -5,7 +5,7 @@ import { TouchableOpacity } from 'react-native';
 
 //LOCAL FILES
 import { styles } from './styles';
-import { User } from "../../types/user";
+import { User } from "@shared/types/user";
 import { useUser } from '../../../hooks/useUser';
 
 export default function ProfileScreen() {

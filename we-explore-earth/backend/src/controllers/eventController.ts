@@ -1,7 +1,7 @@
 import { db } from "../firestore";
 import { Request, Response } from "express";
 import admin from "firebase-admin";
-import { FirestoreEventData } from "@shared/types/event";
+import { FirestoreEventData, EventRSVP } from "@shared/types/event";
 
 // create event
 export async function createEvent(req: Request, res: Response) {
@@ -61,9 +61,9 @@ export async function createEvent(req: Request, res: Response) {
 
 export async function getEvent(req: Request, res: Response) {
   try {
-    const event = await db.collection("events").doc(req.params.id).get();
-    if (!event.exists) {
-      return res.status(404).json({ error: "Event not found" });
+    const event = await db.collection("events").doc(req.params.id as string).get(); // did 'as string' to avoid type error on mannys system.
+    if (!event.exists){
+      return res.status(404).json({error: "Event not found"});
     }
     res.json({ id: event.id, ...event.data() });
   } catch (error) {
@@ -130,9 +130,9 @@ export async function updateEvent(req: Request, res: Response) {
     }
 
     // Check if event exists
-    const eventRef = db.collection("events").doc(id);
+    const eventRef = db.collection("events").doc(id as any);
     const eventDoc = await eventRef.get();
-    
+
     if (!eventDoc.exists) {
       return res.status(404).json({ error: "Event not found" });
     }
@@ -159,5 +159,74 @@ export async function updateEvent(req: Request, res: Response) {
   } catch (error) {
     console.error("Error updating event:", error);
     return res.status(500).json({ error: "Failed to update event" });
+  }
+}
+
+export async function addOrUpdateRSVP(req: Request, res: Response) {
+  try {
+    const eventId = req.params.id;
+    const { userID, status } = req.body;
+
+    if (!userID || !status) {
+      return res.status(400).json({ error: "userID and status are required" });
+    }
+
+    if (status !== 'YES' && status !== 'MAYBE') {
+      return res.status(400).json({ error: "status must be 'YES' or 'MAYBE'" });
+    }
+
+    const eventRef = db.collection("events").doc(eventId as any);
+    const eventDoc = await eventRef.get();
+
+    if (!eventDoc.exists) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    const eventData = eventDoc.data()!;
+    const attendees: EventRSVP[] = eventData.attendees || [];
+    const existingAttendeeIndex = attendees.findIndex((a) => a.userID === userID);
+    if (existingAttendeeIndex >= 0) {
+      attendees[existingAttendeeIndex].status = status;
+    } else {
+      const newRSVP: EventRSVP = { userID, status, checkedIn: false };
+      attendees.push(newRSVP);
+    }
+
+    await eventRef.update({ attendees });
+
+    return res.status(200).json({ message: "Event RSVP updated successfully" });
+  } catch (error: any) {
+    console.error("Error updating event RSVP:", error);
+    return res.status(500).json({ error: "Failed to update event RSVP" });
+  }
+}
+
+export async function removeRSVP(req: Request, res: Response) {
+  try {
+    const eventId = req.params.id;
+    const { userID } = req.body;
+
+    if (!userID) {
+      return res.status(400).json({ error: "userID is required" });
+    }
+
+    const eventRef = db.collection("events").doc(eventId as any);
+    const eventDoc = await eventRef.get();
+
+    if (!eventDoc.exists) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    const eventData = eventDoc.data()!;
+    const attendees: EventRSVP[] = (eventData.attendees || []).filter(
+      (a: EventRSVP) => a.userID !== userID
+    );
+
+    await eventRef.update({ attendees });
+
+    return res.status(200).json({ message: "Event RSVP removed successfully" });
+  } catch (error: any) {
+    console.error("Error removing event RSVP:", error);
+    return res.status(500).json({ error: "Failed to remove event RSVP" });
   }
 }
