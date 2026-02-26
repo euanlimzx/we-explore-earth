@@ -61,9 +61,9 @@ export async function createEvent(req: Request, res: Response) {
 
 export async function getEvent(req: Request, res: Response) {
   try {
-    const event = await db.collection("events").doc(req.params.id as any).get();
-    if (!event.exists) {
-      return res.status(404).json({ error: "Event not found" });
+    const event = await db.collection("events").doc(req.params.id as string).get(); // did 'as string' to avoid type error on mannys system.
+    if (!event.exists){
+      return res.status(404).json({error: "Event not found"});
     }
     res.json({ id: event.id, ...event.data() });
   } catch (error) {
