@@ -7,7 +7,7 @@ import nodemailer from 'nodemailer';
 // GET /users/:id
 export async function getUser(req: Request, res: Response) {
   try {
-    const doc = await db.collection("users").doc(req.params.id).get();
+    const doc = await db.collection("users").doc(req.params.id as any).get();
 
     if (!doc.exists) return res.status(404).json({ error: "User not found" });
 
@@ -109,7 +109,7 @@ export async function updateUser(req: Request, res:Response) {
       return res.status(400).json({ error: "Missing required fields" });
     }
     
-    const userDocument = await db.collection("users").doc(id).get();
+    const userDocument = await db.collection("users").doc(id as any).get();
 
     if (!userDocument.exists) {
       return res.status(404).json({ error: "User not found" });
@@ -118,7 +118,7 @@ export async function updateUser(req: Request, res:Response) {
     const userData = userDocument.data() as NewUser;  
     if (notificationToken !== undefined) userData.notificationToken = notificationToken;
   
-    await db.collection("users").doc(id).set(userData);
+    await db.collection("users").doc(id as any).set(userData);
     
     res.json({ id: id, ...userData });
     
@@ -242,7 +242,7 @@ export async function addOrUpdateUserRSVP(req: Request, res: Response) {
       return res.status(400).json({ error: "status must be 'YES' or 'MAYBE'" });
     }
 
-    const userRef = db.collection("users").doc(id);
+    const userRef = db.collection("users").doc(id as any);
     const userDoc = await userRef.get();
 
     if (!userDoc.exists) {
@@ -278,7 +278,7 @@ export async function removeUserRSVP(req: Request, res: Response) {
       return res.status(400).json({ error: "eventID is required" });
     }
 
-    const userRef = db.collection("users").doc(id);
+    const userRef = db.collection("users").doc(id as any);
     const userDoc = await userRef.get();
 
     if (!userDoc.exists) {
@@ -304,7 +304,7 @@ export async function getUserRSVPs(req: Request, res: Response) {
   try {
     const { id } = req.params;
 
-    const userDoc = await db.collection("users").doc(id).get();
+    const userDoc = await db.collection("users").doc(id as any).get();
 
     if (!userDoc.exists) {
       return res.status(404).json({ error: "User not found" });

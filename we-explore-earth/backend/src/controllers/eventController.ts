@@ -61,7 +61,7 @@ export async function createEvent(req: Request, res: Response) {
 
 export async function getEvent(req: Request, res: Response) {
   try {
-    const event = await db.collection("events").doc(req.params.id).get();
+    const event = await db.collection("events").doc(req.params.id as any).get();
     if (!event.exists) {
       return res.status(404).json({ error: "Event not found" });
     }
@@ -130,7 +130,7 @@ export async function updateEvent(req: Request, res: Response) {
     }
 
     // Check if event exists
-    const eventRef = db.collection("events").doc(id);
+    const eventRef = db.collection("events").doc(id as any);
     const eventDoc = await eventRef.get();
 
     if (!eventDoc.exists) {
@@ -175,7 +175,7 @@ export async function addOrUpdateRSVP(req: Request, res: Response) {
       return res.status(400).json({ error: "status must be 'YES' or 'MAYBE'" });
     }
 
-    const eventRef = db.collection("events").doc(eventId);
+    const eventRef = db.collection("events").doc(eventId as any);
     const eventDoc = await eventRef.get();
 
     if (!eventDoc.exists) {
@@ -210,7 +210,7 @@ export async function removeRSVP(req: Request, res: Response) {
       return res.status(400).json({ error: "userID is required" });
     }
 
-    const eventRef = db.collection("events").doc(eventId);
+    const eventRef = db.collection("events").doc(eventId as any);
     const eventDoc = await eventRef.get();
 
     if (!eventDoc.exists) {
