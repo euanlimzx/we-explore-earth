@@ -40,9 +40,12 @@ export interface FirestoreEventData {
   location: string;
   timeStart: Date;
   timeEnd: Date;
-  category: string[];
-  accommodation: string[];
   price: number;
   maxAttendees: number;
-  attendees: EventRSVP[];
+  rsvpDeadline: Date;
+  hostedBy: string;
+  tags: string[];
+  category?: string[];
+  accommodation?: string[];
+  attendees?: EventRSVP[];
 }
