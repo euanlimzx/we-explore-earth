@@ -5,16 +5,24 @@ import { View, Text, ActivityIndicator, Alert, SafeAreaView, ScrollView} from 'r
 // LOCAL COMPONENTS
 import EventView from './eventView/eventView';
 import EventDetails from './eventDetails/eventDetails';
+import RSVPModal from './RSVPModal/RSVPModal';
 
 // TYPES
 import type { Event } from '@shared/types/event';
 
+// HOOKS
+import { useUser } from '../../../hooks/useUser';
+
 export default function Calendar() {
+  const { user } = useUser();
+
   // STATE VARIABLES
   const [allEvents, setAllEvents] = useState<Event[]>([]);
   const [currentEvents, setCurrentEvents] = useState<Event[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [detailsModalVisible, setDetailsModalVisible] = useState(false);
+  const [rsvpModalVisible, setRsvpModalVisible] = useState(false);
+  const [currentRSVP, setCurrentRSVP] = useState<'YES' | 'MAYBE' | null>(null);
   const [loading, setLoading] = useState(true);
 
   // TIME FILTERING - only upcoming events
@@ -62,12 +70,31 @@ export default function Calendar() {
   const handleEventPress = (event: Event | null) => {
     if (!event) return;
     setSelectedEvent(event);
-    setModalVisible(true);
+    const existingRSVP = user?.events?.find((e) => e.eventID === event.id);
+    setCurrentRSVP(existingRSVP ? (existingRSVP.status as 'YES' | 'MAYBE') : null);
+    setDetailsModalVisible(true);
   };
 
-  const handleCloseModal = () => {
-    setSelectedEvent(null);
-    setModalVisible(false);
+  const handleCloseDetailsModal = () => {
+    setDetailsModalVisible(false);
+  };
+
+  const handleRSVPPress = () => {
+    if (!user) {
+      Alert.alert('Sign In Required', 'Please sign in to RSVP to events.');
+      return;
+    }
+    setDetailsModalVisible(false);
+    setRsvpModalVisible(true);
+  };
+
+  const handleCloseRSVPModal = () => {
+    setRsvpModalVisible(false);
+    setDetailsModalVisible(true);
+  };
+
+  const handleRSVPChange = (status: 'YES' | 'MAYBE' | null) => {
+    setCurrentRSVP(status);
   };
 
   // EFFECTS
@@ -97,9 +124,19 @@ export default function Calendar() {
             </ScrollView>
 
             <EventDetails
-              visible={modalVisible && !!selectedEvent}
+              visible={detailsModalVisible && !!selectedEvent}
               event={selectedEvent}
-              onClose={handleCloseModal}
+              currentRSVP={currentRSVP}
+              onClose={handleCloseDetailsModal}
+              onRSVPPress={handleRSVPPress}
+            />
+
+            <RSVPModal
+              visible={rsvpModalVisible && !!selectedEvent}
+              event={selectedEvent}
+              currentRSVP={currentRSVP}
+              onClose={handleCloseRSVPModal}
+              onRSVPChange={handleRSVPChange}
             />
           </>
         )}

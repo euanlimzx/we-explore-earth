@@ -1,23 +1,76 @@
-import { db } from "../firestore";
 import { Request, Response } from "express";
+import admin from "firebase-admin";
+// import { updateDoc } from "firebase/firestore";
 
-// GET /config - Get all config documents
-export async function getConfig(req: Request, res: Response) {
+const db = admin.firestore();
+
+export async function getAdmins(req: Request, res: Response) {
   try {
-    const snapshot = await db.collection("config").get();
+    const snap = await db.doc("config/shared").get();
+    const data = snap.data();
 
-    if (snapshot.empty) {
-      return res.status(404).json({ error: "No config found" });
+    res.json({ admins: data?.admins ?? [] });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+
+export async function addAdmin(req: Request, res: Response) {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  const normalizedEmail = email.toLowerCase();
+
+  try {
+    await db.doc("config/shared").update({
+      admins: admin.firestore.FieldValue.arrayUnion(normalizedEmail),
+    });
+
+    const usersRef = db.collection("users");
+    const snap = await usersRef.where("email", "==", normalizedEmail).limit(1).get();
+
+    if (!snap.empty) {
+      const userDocRef = snap.docs[0].ref;
+      await userDocRef.set({ isAdmin: true }, { merge: true });
     }
 
-    const configs = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    res.json({ success: true });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+}
 
-    res.json(configs);
-  } catch (e: any) {
-    res.status(500).json({ error: e.message });
+
+export async function removeAdmin(req: Request, res: Response) {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  const normalizedEmail = email.toLowerCase();
+
+  try {
+    await db.doc("config/shared").update({
+      admins: admin.firestore.FieldValue.arrayRemove(normalizedEmail),
+    });
+
+    const userRef = db.collection("users")
+    const snap = await userRef.where("email", "==", normalizedEmail).limit(1).get();
+
+  
+    if(!snap.empty){
+      const userDocRef = snap.docs[0].ref;
+      await userDocRef.set({ isAdmin: false }, { merge: true });
+    }
+
+    res.json({ success: true });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
   }
 }
 

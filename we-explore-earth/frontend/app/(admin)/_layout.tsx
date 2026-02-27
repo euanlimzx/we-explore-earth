@@ -69,33 +69,41 @@ export default function AdminLayout() {
   return (
     <EventFormDirtyProvider>
       <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-        headerShown: false,
-        // Default for all tabs: confirm before leaving event form. Override only for the Events tab.
-        tabBarButton: ConfirmLeaveEventFormTabButton,
-      }}
-    >
-      <Tabs.Screen
-        name="home/index"
-        options={{
-          title: "Home",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
-          ),
+        screenOptions={{
+          tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+          headerShown: false,
+          tabBarButton: ConfirmLeaveEventFormTabButton,
         }}
-      />
-      <Tabs.Screen
-        name="events/[id]"
-        options={{
-          title: "New Event",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="calendar" color={color} />
-          ),
-          tabBarButton: NewEventTabButton,
-        }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen
+          name="home/index"
+          options={{
+            title: "Home",
+            tabBarIcon: ({ color }) => (
+              <IconSymbol size={28} name="house.fill" color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="events/[id]"
+          options={{
+            title: "New Event",
+            tabBarIcon: ({ color }) => (
+              <IconSymbol size={28} name="calendar" color={color} />
+            ),
+            tabBarButton: NewEventTabButton,
+          }}
+        />
+        <Tabs.Screen
+          name="profile/index"
+          options={{
+            title: "Profile",
+            tabBarIcon: ({ color }) => (
+              <IconSymbol size={28} name="paperplane.fill" color={color} />
+            ),
+          }}
+        />
+      </Tabs>
     </EventFormDirtyProvider>
   );
 }

@@ -4,21 +4,18 @@ export interface FirestoreTimestamp {
   _nanoseconds: number;
 }
 
+export type RSVPStatus = 'YES' | 'MAYBE';
+
+//THIS HERE SHOULD BE ALL YOU NEED BUT IF NOT RUN IT BY PLs TO DOUBLE CHECK
+//CONSOLDATE EVERYTHING TO
+// EventRSVP
+// NewEvent
+// Event (which should extend from NewEvent)
+
 export interface EventRSVP {
   userID: string;
-  status: string;
-}
-
-// Config structure received from API (event_tags document)
-export interface EventTagsConfig {
-  [fieldName: string]: string[];
-}
-
-// Selection state stored in form and event document
-export interface EventTagsSelection {
-  [fieldName: string]: {
-    [optionName: string]: boolean;
-  };
+  status: RSVPStatus;
+  checkedIn: boolean;
 }
 
 // Event interface for reading from Firestore (uses FirestoreTimestamp)
@@ -29,25 +26,11 @@ export interface Event {
   location: string;
   timeStart: FirestoreTimestamp;
   timeEnd: FirestoreTimestamp;
+  category: string[];
+  accommodation: string[];
   price: number;
-  hostedBy: string;
-  tags: EventTagsSelection;
   maxAttendees: number;
-  rsvpDeadline: FirestoreTimestamp;
-}
-
-// Event data for creating/updating events (uses Date/ISO strings)
-export interface CreateEventPayload {
-  title: string;
-  description: string;
-  location: string;
-  timeStart: string; // ISO string
-  timeEnd: string; // ISO string
-  price: number | string;
-  hostedBy: string;
-  tags: EventTagsSelection;
-  maxAttendees: number | string;
-  rsvpDeadline: string; // ISO string
+  attendees: EventRSVP[];
 }
 
 // Event data for writing to Firestore (uses Date - Firestore converts to FirestoreTimestamp)
@@ -57,43 +40,9 @@ export interface FirestoreEventData {
   location: string;
   timeStart: Date;
   timeEnd: Date;
-  price: number;
-  hostedBy: string;
-  tags: EventTagsSelection;
-  maxAttendees: number;
-  rsvpDeadline: Date;
-}
-
-// Legacy NewEvent interface (kept for backward compatibility if needed)
-export interface NewEvent {
-  title: string;
-  description: string;
-  timeStart: FirestoreTimestamp;
-  timeEnd: FirestoreTimestamp;
-  location: string;
-  capacity: number;
-  price: number;
   category: string[];
+  accommodation: string[];
+  price: number;
+  maxAttendees: number;
   attendees: EventRSVP[];
-}
-
-// Props for the TagSelectorModal component
-export interface TagSelectorModalProps {
-  visible: boolean;
-  fieldName: string;
-  fieldDisplayName: string;
-  options: string[];
-  selectedOptions: { [option: string]: boolean };
-  onSave: (
-    fieldName: string,
-    selections: { [option: string]: boolean },
-  ) => void;
-  onClose: () => void;
-}
-
-// Props for TagsSection component
-export interface TagsSectionProps {
-  eventTagsConfig: EventTagsConfig | null;
-  tagsSelection: EventTagsSelection;
-  onTagsChange: (newSelection: EventTagsSelection) => void;
 }

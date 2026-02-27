@@ -4,6 +4,8 @@ import {
   getEvent,
   getAllEvents,
   updateEvent,
+  addOrUpdateRSVP,
+  removeRSVP,
 } from "../controllers/eventController";
 
 const router = express.Router();
@@ -19,5 +21,11 @@ router.get("/:id", getEvent);
 
 // GET /events/
 router.get("/", getAllEvents);
+
+// POST /events/:id/rsvp
+router.post("/:id/rsvp", addOrUpdateRSVP);
+
+// DELETE /events/:id/rsvp
+router.delete("/:id/rsvp", removeRSVP);
 
 export default router;

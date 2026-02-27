@@ -1,8 +1,71 @@
 import { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { Modal, View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Checkbox } from 'expo-checkbox';
-import { styles } from './styles'
+import { Calendar } from 'react-native-calendars';
+import Feather from '@expo/vector-icons/Feather';
+import { filterStyles, calendarStyles } from './styles'
+
+const RangeCalendar = () => {
+    const [range, setRange] = useState({ start: '', end: '' });
+
+    const onDayPress = (day: any) => {
+        const { dateString } = day;
+
+        // Reset range if range is defined or if user picks a date before the start
+        if (!range.start || (range.start && range.end) || dateString < range.start) {
+            setRange({ start: dateString, end: '' });
+        } else {
+            setRange({ ...range, end: dateString });
+        }
+    };
+
+    const getMarkedDates = () => {
+        const marked: any = {}; // type MarkedDates: maps strings to type MarkingProps (in imported Calendar component's docs)
+        
+        // Start and end dates are both selected
+        if (range.start && range.end) {
+            // Single date range
+            if (range.start == range.end) {
+                marked[range.start] = { customStyles: calendarStyles.singleDay };
+            }
+            // Multi date range
+            else {
+                marked[range.start] = { customStyles: calendarStyles.startDay };
+                marked[range.end] = { customStyles: calendarStyles.endDay };
+                
+                // Fill in the gap between start and end
+                let start = new Date(range.start);
+                let end = new Date(range.end);
+                while (start < end) {
+                    start.setDate(start.getDate() + 1);
+                    const dateString = start.toISOString().split('T')[0];
+                    if (dateString !== range.end) {
+                        marked[dateString] = { customStyles: calendarStyles.middleDay };
+                    }
+                }
+            }
+        }
+        // Only start date is selected
+        else if (range.start) {
+            marked[range.start] = { customStyles: calendarStyles.startDay };
+        }
+
+        return marked;
+    };
+
+    return (
+        <Calendar
+            markingType={'custom'}
+            markedDates={getMarkedDates()}
+            onDayPress={onDayPress}
+            theme={{
+                todayTextColor: calendarStyles.todayColor,
+                arrowColor: calendarStyles.arrowColor,
+            }}
+        />
+    );
+};
 
 function FilterHeader(
     {
@@ -20,10 +83,10 @@ function FilterHeader(
     }
 
     return(
-        <View style={styles.filterHeaderWrapper}>
-            <Text style={styles.filterHeader}>{header}</Text>
+        <View style={filterStyles.filterHeaderWrapper}>
+            <Text style={filterStyles.filterHeader}>{header}</Text>
             <TouchableOpacity onPress={handleReset}>
-                <Text style={styles.reset}>Reset</Text>
+                <Text style={filterStyles.reset}>Reset</Text>
             </TouchableOpacity>
         </View>
     )
@@ -57,8 +120,8 @@ function FilterOption(
     }
 
     return(
-        <View style={styles.filterOptionWrapper}>
-            <Text style={styles.filterOption}>{option}</Text>
+        <View style={filterStyles.filterOptionWrapper}>
+            <Text style={filterStyles.filterOption}>{option}</Text>
             <Checkbox
                 value={selectedOptions.has(option)}
                 onValueChange={handleCheck}
@@ -74,6 +137,8 @@ function EventFilters() {
 
     const [categoryOptions, setCategoryOptions] = useState<Array<string>>([]);
     const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
+
+    const [calendarVisible, setCalendarVisible] = useState<boolean>(false);
 
     const handleSubmit = () => {
         // Compute start and end dates.
@@ -147,7 +212,7 @@ function EventFilters() {
     return(
         <SafeAreaView style={{flex: 1, backgroundColor: 'white', paddingTop: 20, paddingHorizontal: 20}}>
             <View>
-                <Text style={styles.filterTitle}>Filter</Text>
+                <Text style={filterStyles.filterTitle}>Filter</Text>
                 {dateOptions && dateOptions.length >= 0 &&
                     <>
                         <FilterHeader
@@ -164,6 +229,33 @@ function EventFilters() {
                         )}
                     </>
                 }
+
+                {/** Calendar Picker Modal */}
+                <View style={filterStyles.filterOptionWrapper}>
+                    <Text style={filterStyles.filterOption}>Choose a date range</Text>
+                    <TouchableOpacity onPress={() => { setCalendarVisible(true); }}>
+                        <Feather name='chevron-right' size={24} color='black' />
+                    </TouchableOpacity>
+                </View>
+
+                <Modal
+                    animationType='slide'
+                    transparent={true}
+                    visible={calendarVisible}
+                    onRequestClose={() => { setCalendarVisible(false); }}
+                >
+                    <View style={filterStyles.centeredView}>
+                        <View style={filterStyles.modalView}>
+                            <RangeCalendar/>
+                            {/** TODO: Placeholder text with placeholder style for closing calendar picker. */}
+                            <TouchableOpacity onPress={() => { setCalendarVisible(false); }} style={filterStyles.submit}>
+                                <Text style={filterStyles.submitText}>Set date range</Text>
+                            </TouchableOpacity>
+                            {/** -------------------------------------------------------------------------- */}
+                        </View>
+                    </View>
+                </Modal>
+
                 {categoryOptions && categoryOptions.length >= 0 &&
                     <>
                         <FilterHeader
@@ -181,10 +273,10 @@ function EventFilters() {
                     </>
                 }
                 <TouchableOpacity
-                    style={styles.submit}
+                    style={filterStyles.submit}
                     onPress={handleSubmit}
                 >
-                    <Text style={styles.submitText}>Submit</Text>
+                    <Text style={filterStyles.submitText}>Submit</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

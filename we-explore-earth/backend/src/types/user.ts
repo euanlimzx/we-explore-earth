@@ -4,6 +4,6 @@ export interface User {
     firstName: string;
     lastName: string;
     notificationToken: string | null;
-    isAdmin: boolean;
+    admin: boolean;
   }
   
